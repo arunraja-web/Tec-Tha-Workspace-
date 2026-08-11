@@ -14,6 +14,7 @@ const {
 
 const { protect, authorize } = require('../middleware/authMiddleware');
 const {
+  validateUserId,
   createUserRules,
   updateUserRules,
   updateStatusRules,
@@ -33,9 +34,9 @@ router
 
 router
   .route('/:id')
-  .get(getUserById)
+  .get(validateUserId, getUserById)
   .put(updateUserRules, updateUser)
-  .delete(deleteUser);
+  .delete(validateUserId, deleteUser);
 
 router.patch('/:id/status', updateStatusRules, updateUserStatus);
 router.patch('/:id/role', updateRoleRules, updateUserRole);

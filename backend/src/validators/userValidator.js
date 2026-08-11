@@ -4,6 +4,14 @@ const { validateRequest } = require('./authValidator');
 // Phone Regex: Allows digits with optional leading +, length 10 to 15
 const phoneRegex = /^\+?[0-9]{10,15}$/;
 
+// Validate User ID Parameter
+const validateUserId = [
+  param('id')
+    .isMongoId()
+    .withMessage('Invalid User ID'),
+  validateRequest
+];
+
 // Create User Validation Rules (Admin)
 const createUserRules = [
   body('name')
@@ -41,13 +49,7 @@ const createUserRules = [
     .notEmpty()
     .withMessage('Password is required')
     .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long')
-    .matches(/[A-Z]/)
-    .withMessage('Password must contain at least one uppercase letter')
-    .matches(/[a-z]/)
-    .withMessage('Password must contain at least one lowercase letter')
-    .matches(/[0-9]/)
-    .withMessage('Password must contain at least one number'),
+    .withMessage('Password must be at least 8 characters long'),
   body('role')
     .optional()
     .isIn(['admin', 'founder', 'employee'])
@@ -88,6 +90,14 @@ const updateUserRules = [
     .trim()
     .matches(phoneRegex)
     .withMessage('Please provide a valid phone number (10-15 digits, optional leading +)'),
+  body('role')
+    .optional()
+    .isIn(['admin', 'founder', 'employee'])
+    .withMessage('Role must be admin, founder, or employee'),
+  body('isActive')
+    .optional()
+    .isBoolean()
+    .withMessage('isActive must be a boolean value'),
   validateRequest
 ];
 
@@ -126,17 +136,12 @@ const adminResetPasswordRules = [
     .notEmpty()
     .withMessage('Password is required')
     .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long')
-    .matches(/[A-Z]/)
-    .withMessage('Password must contain at least one uppercase letter')
-    .matches(/[a-z]/)
-    .withMessage('Password must contain at least one lowercase letter')
-    .matches(/[0-9]/)
-    .withMessage('Password must contain at least one number'),
+    .withMessage('Password must be at least 8 characters long'),
   validateRequest
 ];
 
 module.exports = {
+  validateUserId,
   createUserRules,
   updateUserRules,
   updateStatusRules,

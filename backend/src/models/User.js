@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters'],
+      minlength: [8, 'Password must be at least 8 characters'],
       select: false
     },
     role: {
@@ -48,6 +48,10 @@ const userSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true
+    },
+    deletedAt: {
+      type: Date,
+      default: null
     },
     passwordResetToken: {
       type: String,
@@ -81,6 +85,17 @@ const userSchema = new mongoose.Schema(
         delete ret.passwordResetExpires;
         return ret;
       }
+    }
+  }
+);
+
+// Partial unique index for secondaryEmail
+userSchema.index(
+  { secondaryEmail: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      secondaryEmail: { $exists: true, $type: 'string', $ne: null }
     }
   }
 );

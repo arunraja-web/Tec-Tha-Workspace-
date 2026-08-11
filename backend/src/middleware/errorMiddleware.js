@@ -27,9 +27,15 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose Duplicate Key Error (code 11000)
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue || {})[0] || 'field';
-    const value = err.keyValue ? err.keyValue[field] : '';
-    const message = `Duplicate value '${value}' entered for ${field}. Please use another value.`;
+    const field = Object.keys(err.keyValue || err.keyPattern || {})[0] || 'field';
+    let message = 'An account with this credential already exists.';
+    if (field === 'email') {
+      message = 'An account with this email already exists.';
+    } else if (field === 'secondaryEmail') {
+      message = 'An account with this secondary email already exists.';
+    } else if (field === 'phone') {
+      message = 'An account with this phone number already exists.';
+    }
     return sendError(res, 400, message);
   }
 
@@ -48,8 +54,8 @@ const errorHandler = (err, req, res, next) => {
     return sendError(res, 401, 'Authentication token expired');
   }
 
-  const statusCode = err.statusCode || res.statusCode === 200 ? 500 : res.statusCode;
-  const message = error.message || 'Internal Server Error';
+  const statusCode = err.statusCode || (res.statusCode !== 200 ? res.statusCode : 500);
+  const message = err.message || 'Internal Server Error';
 
   return sendError(res, statusCode, message);
 };

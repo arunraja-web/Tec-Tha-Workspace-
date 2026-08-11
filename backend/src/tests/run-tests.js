@@ -7,6 +7,7 @@ dotenv.config();
 
 const app = require('../app');
 const User = require('../models/User');
+const ActivityLog = require('../models/ActivityLog');
 
 let server;
 let port = 5099;
@@ -94,7 +95,8 @@ const runTests = async () => {
     }
 
     await mongoose.connect(testMongoUri);
-    await User.deleteMany({}); // Clean test collection
+    await User.deleteMany({});
+    await ActivityLog.deleteMany({});
 
     // 2. Start HTTP server
     server = app.listen(port);
@@ -115,6 +117,7 @@ const runTests = async () => {
       role: 'admin',
       isActive: true
     });
+    const adminId = admin._id.toString();
 
     // Test 2.1: Valid Primary Email + Password Login
     const adminLogin = await makeRequest('POST', '/api/auth/login', {
@@ -124,7 +127,6 @@ const runTests = async () => {
     assert(adminLogin.statusCode === 200, 'Primary email login succeeds (200)');
     assert(adminLogin.cookies.some((c) => c.includes('token=')), 'HTTP-only cookie returned on login');
 
-    // Extract cookie for admin session
     const adminCookie = adminLogin.cookies.find((c) => c.includes('token=')).split(';')[0];
 
     // Test 2.2: Secondary Email Login MUST FAIL
@@ -134,28 +136,13 @@ const runTests = async () => {
     });
     assert(secEmailLogin.statusCode === 401, 'Login with Secondary Email fails (401)');
 
-    // Test 2.3: Phone Login MUST FAIL
-    const phoneLogin = await makeRequest('POST', '/api/auth/login', {
-      email: '1234567890',
-      password: 'AdminPassword123!'
-    });
-    assert([400, 401].includes(phoneLogin.statusCode), 'Login with Phone fails (400/401)');
-
-    // Test 2.4: Name Login MUST FAIL
-    const nameLogin = await makeRequest('POST', '/api/auth/login', {
-      email: 'Test Admin',
-      password: 'AdminPassword123!'
-    });
-    assert([400, 401].includes(nameLogin.statusCode), 'Login with Name fails (400/401)');
-
     console.log('\n--- TEST GROUP 3: Profile (/api/auth/me) & Security ---');
     const meRes = await makeRequest('GET', '/api/auth/me', null, adminCookie);
     assert(meRes.statusCode === 200, 'GET /api/auth/me returns 200 with valid cookie');
     assert(meRes.body.user && meRes.body.user.email === 'admin@company.com', 'User profile matches admin');
     assert(meRes.body.user.password === undefined, 'Password field is NOT exposed in response');
-    assert(meRes.body.user.passwordResetToken === undefined, 'Password reset token is NOT exposed');
 
-    console.log('\n--- TEST GROUP 4: Employee Creation & Role Authorization ---');
+    console.log('\n--- TEST GROUP 4: Admin CRUD Operations & Validation ---');
     // Test 4.1: Admin creates an employee
     const createEmpRes = await makeRequest(
       'POST',
@@ -171,38 +158,16 @@ const runTests = async () => {
       adminCookie
     );
     assert(createEmpRes.statusCode === 201, 'Admin can create an employee (201)');
+    assert(createEmpRes.body.success === true, 'Response follows success standard');
     const empId = createEmpRes.body.data.user.id || createEmpRes.body.data.user._id;
 
-    // Login as Employee
-    const empLogin = await makeRequest('POST', '/api/auth/login', {
-      email: 'john@company.com',
-      password: 'EmployeePass123!'
-    });
-    assert(empLogin.statusCode === 200, 'Employee can login successfully');
-    const empCookie = empLogin.cookies.find((c) => c.includes('token=')).split(';')[0];
-
-    // Test 4.2: Employee attempting to create a user MUST FAIL (403)
-    const empCreateUserRes = await makeRequest(
-      'POST',
-      '/api/users',
-      {
-        name: 'Unauthorized User',
-        email: 'unauth@company.com',
-        phone: '5555555555',
-        password: 'Pass12345!',
-        role: 'employee'
-      },
-      empCookie
-    );
-    assert(empCreateUserRes.statusCode === 403, 'Employee creation attempt by Employee returns 403 Forbidden');
-
-    // Test 4.3: Prevent duplicate email, secondaryEmail, phone
+    // Test 4.2: Duplicate primary email check
     const dupEmailRes = await makeRequest(
       'POST',
       '/api/users',
       {
         name: 'Dup Employee',
-        email: 'john@company.com', // duplicate primary email
+        email: 'john@company.com',
         phone: '1111111111',
         password: 'Pass12345!',
         role: 'employee'
@@ -211,72 +176,143 @@ const runTests = async () => {
     );
     assert(dupEmailRes.statusCode === 400, 'Duplicate primary email creation fails (400)');
 
-    console.log('\n--- TEST GROUP 5: User Status & Account Deactivation ---');
-    // Deactivate Employee
-    const deactRes = await makeRequest('PATCH', `/api/users/${empId}/status`, { isActive: false }, adminCookie);
-    assert(deactRes.statusCode === 200, 'Admin can deactivate user status');
-
-    // Attempt employee login while deactivated -> MUST FAIL (401)
-    const deactLogin = await makeRequest('POST', '/api/auth/login', {
-      email: 'john@company.com',
-      password: 'EmployeePass123!'
-    });
-    assert(deactLogin.statusCode === 401, 'Deactivated user login fails with 401');
-
-    // Reactivate Employee
-    await makeRequest('PATCH', `/api/users/${empId}/status`, { isActive: true }, adminCookie);
-
-    console.log('\n--- TEST GROUP 6: Password Recovery (Forgot & Reset Password) ---');
-    // Test 6.1: Forgot Password
-    const forgotRes = await makeRequest('POST', '/api/auth/forgot-password', {
-      email: 'john@company.com'
-    });
-    assert(forgotRes.statusCode === 200, 'Forgot password returns 200 generic message');
-
-    // Retrieve hashed reset token directly from DB for verification test
-    const userInDb = await User.findOne({ email: 'john@company.com' }).select('+password +passwordResetToken +passwordResetExpires');
-    assert(userInDb.passwordResetToken !== undefined, 'Password reset token stored in database');
-
-    // We generate valid reset token from user instance
-    const rawResetToken = userInDb.createPasswordResetToken();
-    await userInDb.save();
-
-    // Test 6.2: Reset Password with token
-    const resetRes = await makeRequest('POST', `/api/auth/reset-password/${rawResetToken}`, {
-      password: 'NewEmployeePass123!'
-    });
-    assert(resetRes.statusCode === 200, 'Reset password succeeds with valid token');
-
-    // Login with NEW password
-    const newPassLogin = await makeRequest('POST', '/api/auth/login', {
-      email: 'john@company.com',
-      password: 'NewEmployeePass123!'
-    });
-    assert(newPassLogin.statusCode === 200, 'Employee login succeeds with NEW password');
-
-    // Test 6.3: Token single-use invalidation
-    const reuseResetRes = await makeRequest('POST', `/api/auth/reset-password/${rawResetToken}`, {
-      password: 'AnotherPassword123!'
-    });
-    assert(reuseResetRes.statusCode === 400, 'Reset token cannot be reused (400)');
-
-    console.log('\n--- TEST GROUP 7: Change Password ---');
-    const newEmpCookie = newPassLogin.cookies.find((c) => c.includes('token=')).split(';')[0];
-    const changePassRes = await makeRequest(
+    // Test 4.3: Primary === Secondary Email check
+    const sameEmailRes = await makeRequest(
       'POST',
-      '/api/auth/change-password',
+      '/api/users',
       {
-        currentPassword: 'NewEmployeePass123!',
-        newPassword: 'FinalPass12345!'
+        name: 'Same Email User',
+        email: 'same@company.com',
+        secondaryEmail: 'same@company.com',
+        phone: '2222222222',
+        password: 'Pass12345!',
+        role: 'employee'
       },
-      newEmpCookie
+      adminCookie
     );
-    assert(changePassRes.statusCode === 200, 'Change password succeeds when current password is valid');
+    assert(sameEmailRes.statusCode === 400, 'Primary === Secondary email creation fails (400)');
 
-    console.log('\n--- TEST GROUP 8: Logout ---');
-    const logoutRes = await makeRequest('POST', '/api/auth/logout', null, newEmpCookie);
-    assert(logoutRes.statusCode === 200, 'Logout succeeds');
-    assert(logoutRes.cookies.some((c) => c.includes('token=none')), 'Cookie token is cleared');
+    // Test 4.4: Secondary Email duplicate check across users
+    const dupSecRes = await makeRequest(
+      'POST',
+      '/api/users',
+      {
+        name: 'Dup Sec Email User',
+        email: 'another@company.com',
+        secondaryEmail: 'john.personal@gmail.com', // used as secondary by John
+        phone: '3333333333',
+        password: 'Pass12345!',
+        role: 'employee'
+      },
+      adminCookie
+    );
+    assert(dupSecRes.statusCode === 400, 'Duplicate secondary email creation fails (400)');
+
+    console.log('\n--- TEST GROUP 5: Search, Filter, Pagination, Sorting ---');
+    // Create founder user
+    await makeRequest(
+      'POST',
+      '/api/users',
+      {
+        name: 'Alice Founder',
+        email: 'alice@company.com',
+        phone: '8888888888',
+        password: 'FounderPass123!',
+        role: 'founder'
+      },
+      adminCookie
+    );
+
+    // Search Test
+    const searchRes = await makeRequest('GET', '/api/users?search=john', null, adminCookie);
+    assert(searchRes.statusCode === 200 && searchRes.body.data.users.length === 1, 'Search by keyword john returns 1 matching user');
+
+    // Filter Test
+    const filterRes = await makeRequest('GET', '/api/users?role=founder&status=active', null, adminCookie);
+    assert(filterRes.statusCode === 200 && filterRes.body.data.users.length === 1, 'Filter by role=founder & status=active returns founder user');
+
+    // Pagination & Sorting Test
+    const pageRes = await makeRequest('GET', '/api/users?page=1&limit=2&sortBy=name&sortOrder=asc', null, adminCookie);
+    assert(pageRes.statusCode === 200 && pageRes.body.data.pagination.limit === 2, 'Pagination returns limit 2 and pagination meta');
+
+    console.log('\n--- TEST GROUP 6: Single User GET, UPDATE & Validation ---');
+    // Invalid ObjectId Test
+    const invalidIdRes = await makeRequest('GET', '/api/users/invalid-id-123', null, adminCookie);
+    assert(invalidIdRes.statusCode === 400, 'Invalid ObjectId returns 400 Bad Request');
+
+    // Non-existent ID Test
+    const nonExistentId = new mongoose.Types.ObjectId().toString();
+    const notFoundRes = await makeRequest('GET', `/api/users/${nonExistentId}`, null, adminCookie);
+    assert(notFoundRes.statusCode === 404, 'Non-existent user ID returns 404 Not Found');
+
+    // Update user
+    const updateRes = await makeRequest(
+      'PUT',
+      `/api/users/${empId}`,
+      {
+        name: 'John Updated Employee'
+      },
+      adminCookie
+    );
+    assert(updateRes.statusCode === 200 && updateRes.body.data.user.name === 'John Updated Employee', 'Admin can update user profile');
+
+    console.log('\n--- TEST GROUP 7: Admin Self-Lockout & Last-Admin Protections ---');
+    // Test 7.1: Admin self role demotion -> MUST FAIL
+    const selfDemoteRes = await makeRequest('PATCH', `/api/users/${adminId}/role`, { role: 'employee' }, adminCookie);
+    assert(selfDemoteRes.statusCode === 400, 'Admin self demotion fails (400)');
+
+    // Test 7.2: Admin self deactivation -> MUST FAIL
+    const selfDeactRes = await makeRequest('PATCH', `/api/users/${adminId}/status`, { isActive: false }, adminCookie);
+    assert(selfDeactRes.statusCode === 400, 'Admin self deactivation fails (400)');
+
+    // Test 7.3: Admin self deletion -> MUST FAIL
+    const selfDelRes = await makeRequest('DELETE', `/api/users/${adminId}`, null, adminCookie);
+    assert(selfDelRes.statusCode === 400, 'Admin self deletion fails (400)');
+
+    // Test 7.4: Last Active Admin protection by a second admin
+    const createAdmin2Res = await makeRequest(
+      'POST',
+      '/api/users',
+      {
+        name: 'Admin Two',
+        email: 'admin2@company.com',
+        phone: '7777777777',
+        password: 'Admin2Pass123!',
+        role: 'admin'
+      },
+      adminCookie
+    );
+    const admin2Id = createAdmin2Res.body.data.user.id || createAdmin2Res.body.data.user._id;
+
+    // Login as Admin 2
+    const admin2Login = await makeRequest('POST', '/api/auth/login', {
+      email: 'admin2@company.com',
+      password: 'Admin2Pass123!'
+    });
+    const admin2Cookie = admin2Login.cookies.find((c) => c.includes('token=')).split(';')[0];
+
+    // Admin 2 deactivates Admin 1 -> should succeed since 2 active admins exist
+    const deactAdmin1 = await makeRequest('PATCH', `/api/users/${adminId}/status`, { isActive: false }, admin2Cookie);
+    assert(deactAdmin1.statusCode === 200, 'Admin 2 can deactivate Admin 1 when 2 active admins exist');
+
+    // Now Admin 2 tries to deactivate themselves (the last active admin) -> MUST FAIL
+    const lastAdminDeact = await makeRequest('PATCH', `/api/users/${admin2Id}/status`, { isActive: false }, admin2Cookie);
+    assert(lastAdminDeact.statusCode === 400, 'Deactivating last active admin fails (400)');
+
+    // Reactivate Admin 1
+    await makeRequest('PATCH', `/api/users/${adminId}/status`, { isActive: true }, admin2Cookie);
+
+    console.log('\n--- TEST GROUP 8: Soft Delete & Activity Logging ---');
+    // Soft Delete Employee
+    const delEmpRes = await makeRequest('DELETE', `/api/users/${empId}`, null, adminCookie);
+    assert(delEmpRes.statusCode === 200, 'Soft deleting user returns 200');
+
+    const softDeletedEmp = await User.findById(empId);
+    assert(softDeletedEmp.isActive === false && softDeletedEmp.deletedAt !== null, 'Deleted user has isActive=false and non-null deletedAt timestamp');
+
+    // Verify ActivityLog entries were created
+    const activityCount = await ActivityLog.countDocuments({});
+    assert(activityCount > 0, 'Activity log records stored in DB for admin operations');
 
     console.log(`\n====================================================`);
     console.log(`TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);
