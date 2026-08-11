@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { UserCheck, LogOut, ShieldCheck, CheckSquare, Calendar, MessageSquare } from 'lucide-react';
 import Button from '../../components/common/Button';
+import MeetingSection from '../../components/meetings/MeetingSection';
 
 export const EmployeeDashboard = () => {
   const { user, logout } = useAuth();
@@ -71,6 +72,9 @@ export const EmployeeDashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* Employee Meetings Section */}
+        <MeetingSection />
 
       </div>
     </div>
