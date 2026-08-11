@@ -314,6 +314,128 @@ const runTests = async () => {
     const activityCount = await ActivityLog.countDocuments({});
     assert(activityCount > 0, 'Activity log records stored in DB for admin operations');
 
+    console.log('\n--- TEST GROUP 9: Meeting Module CRUD & Permissions ---');
+
+    // Setup Test Users: Founder and Employee 2
+    const emp2LoginRes = await makeRequest(
+      'POST',
+      '/api/users',
+      {
+        name: 'Jane Employee',
+        email: 'jane@company.com',
+        phone: '4444444444',
+        password: 'JanePass123!',
+        role: 'employee'
+      },
+      adminCookie
+    );
+    const emp2Id = emp2LoginRes.body.data.user.id || emp2LoginRes.body.data.user._id;
+
+    const emp2Login = await makeRequest('POST', '/api/auth/login', {
+      email: 'jane@company.com',
+      password: 'JanePass123!'
+    });
+    const emp2Cookie = emp2Login.cookies.find((c) => c.includes('token=')).split(';')[0];
+
+    const founderLogin = await makeRequest('POST', '/api/auth/login', {
+      email: 'alice@company.com',
+      password: 'FounderPass123!'
+    });
+    const founderCookie = founderLogin.cookies.find((c) => c.includes('token=')).split(';')[0];
+
+    // 9.1 Unauthenticated Request -> 401
+    const unauthMeetRes = await makeRequest('GET', '/api/meetings');
+    assert(unauthMeetRes.statusCode === 401, 'Unauthenticated GET /api/meetings returns 401');
+
+    // 9.2 Validation Errors on Create
+    const missingTitleRes = await makeRequest('POST', '/api/meetings', { meetingLink: 'https://meet.google.com/abc' }, emp2Cookie);
+    assert(missingTitleRes.statusCode === 400, 'Create meeting with missing title returns 400');
+
+    const invalidTitleRes = await makeRequest('POST', '/api/meetings', { title: 'hi', meetingLink: 'https://meet.google.com/abc' }, emp2Cookie);
+    assert(invalidTitleRes.statusCode === 400, 'Create meeting with title < 3 chars returns 400');
+
+    const invalidLinkRes = await makeRequest('POST', '/api/meetings', { title: 'Valid Title', meetingLink: 'javascript:alert(1)' }, emp2Cookie);
+    assert(invalidLinkRes.statusCode === 400, 'Create meeting with invalid URL protocol returns 400');
+
+    // 9.3 Admin, Founder, Employee creates meeting -> 201
+    const emp2MeetingRes = await makeRequest('POST', '/api/meetings', {
+      title: 'Employee Standup',
+      description: 'Daily team sync',
+      meetingLink: 'https://meet.google.com/emp-sync-123'
+    }, emp2Cookie);
+    assert(emp2MeetingRes.statusCode === 201, 'Employee can create a meeting (201)');
+    const emp2MeetingId = emp2MeetingRes.body.data.id || emp2MeetingRes.body.data._id;
+
+    const founderMeetingRes = await makeRequest('POST', '/api/meetings', {
+      title: 'Founder Strategy Session',
+      meetingLink: 'https://meet.google.com/founder-strat'
+    }, founderCookie);
+    assert(founderMeetingRes.statusCode === 201, 'Founder can create a meeting without optional description (201)');
+
+    const adminMeetingRes = await makeRequest('POST', '/api/meetings', {
+      title: 'Admin Quarterly Review',
+      description: 'Review performance',
+      meetingLink: 'https://meet.google.com/admin-rev'
+    }, adminCookie);
+    assert(adminMeetingRes.statusCode === 201, 'Admin can create a meeting (201)');
+    const adminMeetingId = adminMeetingRes.body.data.id || adminMeetingRes.body.data._id;
+
+    // 9.4 GET all active meetings & Search, Pagination, Sorting
+    const allMeetingsRes = await makeRequest('GET', '/api/meetings', null, emp2Cookie);
+    assert(allMeetingsRes.statusCode === 200 && allMeetingsRes.body.data.meetings.length === 3, 'GET /api/meetings returns active meetings');
+
+    const searchMeetingsRes = await makeRequest('GET', '/api/meetings?search=Standup', null, emp2Cookie);
+    assert(searchMeetingsRes.statusCode === 200 && searchMeetingsRes.body.data.meetings.length === 1, 'Search meeting by keyword returns matching item');
+
+    const pageMeetingsRes = await makeRequest('GET', '/api/meetings?page=1&limit=2&sortOrder=asc', null, emp2Cookie);
+    assert(pageMeetingsRes.statusCode === 200 && pageMeetingsRes.body.data.meetings.length === 2, 'Pagination and sorting on meetings works correctly');
+
+    // 9.5 GET single active meeting
+    const getSingleRes = await makeRequest('GET', `/api/meetings/${emp2MeetingId}`, null, founderCookie);
+    assert(getSingleRes.statusCode === 200 && getSingleRes.body.data.title === 'Employee Standup', 'GET single meeting by ID returns meeting details');
+
+    // 9.6 Update Meeting: Creator vs Non-Creator
+    // Employee tries to update Admin's meeting -> 403
+    const empUpdateAdminRes = await makeRequest('PUT', `/api/meetings/${adminMeetingId}`, { title: 'Hacked Title' }, emp2Cookie);
+    assert(empUpdateAdminRes.statusCode === 403, 'Employee updating another user meeting fails (403)');
+
+    // Creator updates own meeting -> 200
+    const empUpdateOwnRes = await makeRequest('PUT', `/api/meetings/${emp2MeetingId}`, { title: 'Employee Standup Updated' }, emp2Cookie);
+    assert(empUpdateOwnRes.statusCode === 200 && empUpdateOwnRes.body.data.title === 'Employee Standup Updated', 'Creator can update own meeting');
+
+    // Admin updates another user's meeting -> 200 (Admin override)
+    const adminUpdateEmpRes = await makeRequest('PUT', `/api/meetings/${emp2MeetingId}`, { title: 'Employee Standup Admin Override' }, adminCookie);
+    assert(adminUpdateEmpRes.statusCode === 200 && adminUpdateEmpRes.body.data.title === 'Employee Standup Admin Override', 'Admin can update any meeting (Admin override)');
+
+    // 9.7 Status Toggle Validation
+    const stringBooleanRes = await makeRequest('PATCH', `/api/meetings/${emp2MeetingId}/status`, { isActive: 'false' }, emp2Cookie);
+    assert(stringBooleanRes.statusCode === 400, 'Status update with string boolean "false" fails validation (400)');
+
+    // Employee deactivates own meeting -> 200
+    const empDeactRes = await makeRequest('PATCH', `/api/meetings/${emp2MeetingId}/status`, { isActive: false }, emp2Cookie);
+    assert(empDeactRes.statusCode === 200 && empDeactRes.body.data.isActive === false, 'Creator can deactivate own meeting status');
+
+    // Single GET on deactivated meeting -> 404
+    const getDeactRes = await makeRequest('GET', `/api/meetings/${emp2MeetingId}`, null, emp2Cookie);
+    assert(getDeactRes.statusCode === 404, 'GET single inactive meeting returns 404 Not Found');
+
+    // Employee reactivates own meeting -> 200
+    const empReactRes = await makeRequest('PATCH', `/api/meetings/${emp2MeetingId}/status`, { isActive: true }, emp2Cookie);
+    assert(empReactRes.statusCode === 200 && empReactRes.body.data.isActive === true, 'Creator can reactivate own meeting status');
+
+    // 9.8 Soft Delete (DELETE /api/meetings/:id)
+    // Non-creator employee tries to delete -> 403
+    const empDelAdminRes = await makeRequest('DELETE', `/api/meetings/${adminMeetingId}`, null, emp2Cookie);
+    assert(empDelAdminRes.statusCode === 403, 'Unauthorized user deleting another meeting fails (403)');
+
+    // Creator soft-deletes own meeting -> 200
+    const empDelOwnRes = await makeRequest('DELETE', `/api/meetings/${emp2MeetingId}`, null, emp2Cookie);
+    assert(empDelOwnRes.statusCode === 200, 'Creator soft-deletes own meeting');
+
+    // Admin soft-deletes another meeting -> 200
+    const adminDelRes = await makeRequest('DELETE', `/api/meetings/${adminMeetingId}`, null, adminCookie);
+    assert(adminDelRes.statusCode === 200, 'Admin can soft-delete any meeting');
+
     console.log(`\n====================================================`);
     console.log(`TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);
     console.log(`====================================================\n`);

@@ -37,6 +37,11 @@ Production-ready, secure, scalable backend API for the Virtual Company Workspace
 | Change User Role (`PATCH /api/users/:id/role`) | ✅ | ❌ | ❌ |
 | Admin Password Reset (`PATCH /api/users/:id/reset-password`) | ✅ | ❌ | ❌ |
 | Soft Delete User (`DELETE /api/users/:id`) | ✅ | ❌ | ❌ |
+| Create Meetings (`POST /api/meetings`) | ✅ | ✅ | ✅ |
+| View Active Meetings (`GET /api/meetings`) | ✅ | ✅ | ✅ |
+| Update Meeting (`PUT /api/meetings/:id`) | ✅ (All) | Creator Only | Creator Only |
+| Toggle Meeting Status (`PATCH /api/meetings/:id/status`) | ✅ (All) | Creator Only | Creator Only |
+| Deactivate Meeting (`DELETE /api/meetings/:id`) | ✅ (All) | Creator Only | Creator Only |
 
 ---
 
@@ -68,9 +73,24 @@ All routes require `protect` and `authorize('admin')`.
 | `PATCH` | `/api/users/:id/reset-password` | Admin | Direct password reset for user by Admin. |
 | `DELETE` | `/api/users/:id` | Admin | Soft delete user (`isActive: false`, `deletedAt` set). |
 
+### 3. Employee Meeting Endpoints (`/api/meetings`)
+
+All routes require `protect` (authenticated user).
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/meetings` | Authenticated | Create meeting (`title`, `description`, `meetingLink`). Creator assigned automatically. |
+| `GET` | `/api/meetings` | Authenticated | Get all active meetings with search, pagination, and sorting. |
+| `GET` | `/api/meetings/:id` | Authenticated | Get single active meeting details. Returns 404 if missing or inactive. |
+| `PUT` | `/api/meetings/:id` | Creator / Admin | Update meeting details (`title`, `description`, `meetingLink`). |
+| `PATCH` | `/api/meetings/:id/status` | Creator / Admin | Activate or deactivate meeting status (`isActive: true/false`). |
+| `DELETE` | `/api/meetings/:id` | Creator / Admin | Soft delete meeting (`isActive: false`). |
+
 ---
 
-## Query Parameters (`GET /api/users`)
+## Query Parameters Reference
+
+### Users Query Parameters (`GET /api/users`)
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
@@ -81,6 +101,15 @@ All routes require `protect` and `authorize('admin')`.
 | `limit` | Integer | `20` | Items per page (max: `100`). |
 | `sortBy` | String | `createdAt` | Field to sort by (`name`, `email`, `role`, `createdAt`, `updatedAt`). |
 | `sortOrder` | String | `desc` | Sort direction (`asc` or `desc`). |
+
+### Meetings Query Parameters (`GET /api/meetings`)
+
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `search` | String | - | Search keyword across `title` and `description` (case-insensitive). |
+| `page` | Integer | `1` | Page number for pagination. |
+| `limit` | Integer | `20` | Items per page (max: `100`). |
+| `sortOrder` | String | `desc` | Sort direction (`asc` or `desc`) by `createdAt`. |
 
 ---
 
@@ -184,12 +213,67 @@ Upon server startup (`npm run dev`), the system automatically seeds initial acco
 }
 ```
 
-### 4. Error Response Example (Duplicate Credential / Admin Self-Lockout)
+### 4. Create Meeting Example
+`POST /api/meetings`
 ```json
-// Response (400 Bad Request)
+// Request Body (Authenticated Cookie or Bearer Token Required)
+{
+  "title": "Weekly Team Meeting",
+  "description": "Discuss project progress.",
+  "meetingLink": "https://meet.google.com/abc-defg-hij"
+}
+
+// Response (201 Created)
+{
+  "success": true,
+  "message": "Meeting created successfully",
+  "data": {
+    "title": "Weekly Team Meeting",
+    "description": "Discuss project progress.",
+    "meetingLink": "https://meet.google.com/abc-defg-hij",
+    "isActive": true,
+    "createdBy": "66b8e4f1a2...",
+    "createdAt": "2026-08-11T14:30:00.000Z",
+    "id": "66b8f521b3..."
+  }
+}
+```
+
+### 5. Get Active Meetings Example
+`GET /api/meetings?search=Team&page=1&limit=20&sortOrder=desc`
+```json
+// Response (200 OK)
+{
+  "success": true,
+  "message": "Meetings retrieved successfully",
+  "data": {
+    "meetings": [
+      {
+        "id": "66b8f521b3...",
+        "title": "Weekly Team Meeting",
+        "description": "Discuss project progress.",
+        "meetingLink": "https://meet.google.com/abc-defg-hij",
+        "isActive": true,
+        "createdBy": "66b8e4f1a2...",
+        "createdAt": "2026-08-11T14:30:00.000Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "totalMeetings": 1,
+      "totalPages": 1
+    }
+  }
+}
+```
+
+### 6. Error Response Example (Duplicate Credential / Admin Self-Lockout / Unauthorized Update)
+```json
+// Response (400 Bad Request / 403 Forbidden)
 {
   "success": false,
-  "message": "You cannot remove or disable your own admin access."
+  "message": "Not authorized to update this meeting"
 }
 ```
 
