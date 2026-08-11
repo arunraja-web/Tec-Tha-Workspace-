@@ -1,0 +1,2 @@
+Backend API: https://overneglectfully-nonsalable-aide.ngrok-free.dev/api
+Public URL: https://overneglectfully-nonsalable-aide.ngrok-free.dev

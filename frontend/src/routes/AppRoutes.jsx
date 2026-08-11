@@ -1,0 +1,59 @@
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from '../pages/common/LandingPage';
+import Login from '../pages/auth/Login';
+import FounderDashboard from '../pages/founder/Dashboard';
+import AdminDashboard from '../pages/admin/Dashboard';
+import EmployeeDashboard from '../pages/employee/Dashboard';
+import ProtectedRoute from './ProtectedRoute';
+import RoleRoute from './RoleRoute';
+import { ROLES } from '../constants/roles';
+
+export const AppRoutes = () => {
+  return (
+    <Routes>
+      {/* Common Pre-Login Public Routes */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<Login />} />
+
+      {/* Role-Based Protected Dashboards */}
+      <Route
+        path="/founder/dashboard"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.FOUNDER]}>
+              <FounderDashboard />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.ADMIN]}>
+              <AdminDashboard />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/employee/dashboard"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.EMPLOYEE]}>
+              <EmployeeDashboard />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Fallback Catch-All */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+export default AppRoutes;
