@@ -1,25 +1,24 @@
-const ngrok = require('@ngrok/ngrok');
-const fs = require('fs');
+import ngrok from '@ngrok/ngrok';
+import fs from 'fs';
 
 (async () => {
   try {
     const authtoken = '3BCmh1ccNrQbGTJuKW92kU2rh4k_7ynY2bB7R3BnR8FbArS2';
 
-    // Establish ngrok tunnel for Backend (port 5000)
+    // Establish ngrok tunnel for Frontend (port 5173)
     const listener = await ngrok.forward({
-      addr: 5000,
+      addr: 5173,
       authtoken: authtoken,
     });
 
     const publicUrl = listener.url();
 
     console.log('==================================================');
-    console.log('🚀 BACKEND NGROK TUNNEL CREATED SUCCESSFULLY!');
-    console.log('Public Backend URL:', publicUrl);
-    console.log('Backend API Base:', `${publicUrl}/api`);
+    console.log('🚀 FRONTEND NGROK TUNNEL CREATED SUCCESSFULLY!');
+    console.log('Public Frontend URL:', publicUrl);
     console.log('==================================================');
 
-    fs.writeFileSync('ngrok-url.txt', `Backend API: ${publicUrl}/api\nPublic URL: ${publicUrl}\n`, 'utf8');
+    fs.writeFileSync('ngrok-url.txt', `Frontend Public URL: ${publicUrl}\n`, 'utf8');
 
     // Keep process alive
     process.stdin.resume();
@@ -34,10 +33,10 @@ const fs = require('fs');
       console.error('\n🛠️ HOW TO FIX RIGHT NOW:');
       console.error(' ► Option 1: Go to https://dashboard.ngrok.com/endpoints and click "Stop Endpoint".');
       console.error(' ► Option 2: Wait 3-5 minutes for the Ngrok cloud heartbeat to timeout.');
-      console.error(' ► Option 3: Run `npx localtunnel --port 5000` for an instant alternative tunnel.');
+      console.error(' ► Option 3: Run `npx localtunnel --port 5173` for an instant alternative tunnel.');
       console.error('==================================================');
     } else {
-      console.error('Failed to create backend ngrok tunnel:', error);
+      console.error('Failed to create frontend ngrok tunnel:', error);
     }
     process.exit(1);
   }
