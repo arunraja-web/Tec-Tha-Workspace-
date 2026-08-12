@@ -1,123 +1,102 @@
 import React from 'react';
-import { ArrowRight, CheckCircle2, MessageSquare, Video, CheckSquare, Sparkles } from 'lucide-react';
-import Button from '../common/Button';
+import { Link } from 'react-router-dom';
 
 export const HeroSection = () => {
   return (
-    <section id="hero" className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-white dark:bg-black text-slate-900 dark:text-white transition-colors duration-300">
-      
-      {/* Background Grid Accent */}
-      <div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-40 pointer-events-none" />
+    <section id="hero" className="relative min-h-screen flex flex-col justify-between items-center bg-slate-100/90 dark:bg-neutral-950 text-slate-900 dark:text-white transition-colors duration-300 pt-12 pb-8 px-4 w-full">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Side-by-Side Desktop Composition */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
-          {/* Left Column: Typography & CTAs */}
-          <div className="lg:col-span-6 space-y-6 text-left">
-            
-            {/* Small Eyebrow Text */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-slate-300 text-xs font-semibold tracking-wide">
-              <Sparkles className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-              <span>Unified Enterprise Workspace</span>
-            </div>
+      {/* Subtle Background Mesh Grid Accent */}
+      <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-40 pointer-events-none" />
 
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] text-slate-900 dark:text-white">
-              Your company, <br className="hidden sm:inline" />
-              <span className="text-slate-900 dark:text-slate-100 underline decoration-slate-300 dark:decoration-slate-700 decoration-4 underline-offset-8">
-                connected
-              </span> in one workspace.
-            </h1>
+      {/* Centered Gateway Login Card (Matching Reference Design with Workspace Logo) */}
+      <div className="my-auto relative z-10 max-w-3xl w-full px-2 sm:px-0">
+        <div className="bg-white dark:bg-neutral-900 border border-slate-200/90 dark:border-neutral-800 rounded-10px shadow-xl p-8 sm:p-12 text-center flex flex-col items-center gap-6">
 
-            {/* Supporting Text */}
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal leading-relaxed max-w-xl">
-              Manage work, communication, meetings, tasks and everyday company operations — all in one place.
-            </p>
-
-            {/* Primary & Secondary CTAs */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
-              <Button to="/login" variant="primary" size="lg" icon={ArrowRight} iconPosition="right" className="w-full sm:w-auto">
-                Get Started
-              </Button>
-              <Button href="#features" variant="outline" size="lg" className="w-full sm:w-auto">
-                Explore Workspace
-              </Button>
-            </div>
-
-            {/* Trust Bullet Highlights */}
-            <div className="pt-4 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs font-medium text-slate-500 dark:text-slate-400">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-                <span>Single Central Gateway</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-                <span>Real-time Workspace Sync</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-                <span>Enterprise Security</span>
-              </div>
-            </div>
-
+          {/* Workspace Brand Logo */}
+          <div className="flex flex-col items-center gap-2">
+            <img
+              src="/logo1.webp"
+              alt="TEC THA Workspace Logo"
+              className="h-14 w-auto object-contain max-w-[180px]"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
           </div>
 
-          {/* Right Column: High-Quality Unsplash Workspace Photography with Micro UI accents */}
-          <div className="lg:col-span-6 relative">
-            
-            {/* Unsplash Workspace Image Container */}
-            <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-neutral-800 shadow-2xl bg-slate-100 dark:bg-neutral-900 group">
-              <img
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
-                alt="Modern Remote Team Workspace Collaboration"
-                className="w-full h-[420px] sm:h-[480px] object-cover object-center filter grayscale-[10%] contrast-[105%] group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              
-              {/* Subtle Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-50 pointer-events-none" />
+          {/* Heading with Reference Font Styling */}
+          <h1 className="text-2xl sm:text-4xl font-semibold text-slate-900 dark:text-white tracking-tight font-Montserrat">
+            Sign in to access TEC THA
+          </h1>
 
-              {/* Floating Micro UI Accent 1: Tasks Completed */}
-              <div className="absolute top-6 left-6 bg-white/95 dark:bg-neutral-900/95 rounded-xl p-3.5 shadow-xl flex items-center gap-3 border border-slate-200 dark:border-neutral-700 backdrop-blur-md">
-                <div className="w-8 h-8 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center">
-                  <CheckSquare className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-900 dark:text-white">12 tasks completed</div>
-                  <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Engineering sprint</div>
-                </div>
-              </div>
+          {/* SIGN IN Action Button */}
+          <div className="pt-2 w-full flex justify-center">
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center bg-[#0562ff] hover:bg-blue-700 text-white font-semibold text-sm sm:text-lg px-10 py-3  shadow-sm hover:shadow transition-all duration-200 uppercase tracking-wider w-full sm:w-auto min-w-[140px]"
+            >
+              SIGN IN
+            </Link>
+          </div>
 
-              {/* Floating Micro UI Accent 2: Team Meeting */}
-              <div className="absolute bottom-6 left-6 bg-white/95 dark:bg-neutral-900/95 rounded-xl p-3.5 shadow-xl flex items-center gap-3 border border-slate-200 dark:border-neutral-700 backdrop-blur-md">
-                <div className="w-8 h-8 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center">
-                  <Video className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-900 dark:text-white">Team meeting · 10:30 AM</div>
-                  <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400">All-hands sync active</div>
-                </div>
-              </div>
+          {/* Card Footer: No Sign Up Access & Vector Brand Icons */}
+          <div className="w-full border-t border-dashed border-slate-200 dark:border-neutral-800 pt-5 mt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Don't have an account? <span className="text-slate-700 dark:text-slate-300 font-semibold">Contact your workspace administrator</span>
+            </p>
 
-              {/* Floating Micro UI Accent 3: Messages */}
-              <div className="absolute top-1/2 -right-2 -translate-y-1/2 hidden sm:flex bg-white/95 dark:bg-neutral-900/95 rounded-xl p-3.5 shadow-xl items-center gap-3 border border-slate-200 dark:border-neutral-700 backdrop-blur-md">
-                <div className="w-8 h-8 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center">
-                  <MessageSquare className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-900 dark:text-white">3 new messages</div>
-                  <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400">#general channel</div>
-                </div>
-              </div>
+            {/* Real Website & LinkedIn Vector Brand Icons */}
+            <div className="flex items-center gap-2">
+              {/* Website Icon */}
+              <a
+                href="https://tectha.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 rounded-lg text-slate-500 hover:text-[#0562ff] bg-slate-50 dark:bg-neutral-800 hover:bg-slate-100 transition-all border border-slate-200 dark:border-neutral-700"
+                title="Official Website"
+                aria-label="Official Website"
+              >
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+              </a>
 
+              {/* Real LinkedIn Brand SVG Vector Icon */}
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 rounded-lg bg-slate-50 dark:bg-neutral-800 hover:bg-slate-100 transition-all border border-slate-200 dark:border-neutral-700"
+                title="LinkedIn Page"
+                aria-label="LinkedIn Page"
+              >
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="#0A66C2">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </a>
             </div>
-
           </div>
 
         </div>
-
       </div>
+
+      {/* Page Footer Bar */}
+      <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-slate-200/60 dark:border-neutral-900 text-lg text-slate-500 dark:text-slate-400 font-medium">
+        {/* Left: Copyright */}
+        <div className="text-sm sm:text-normal">
+          © {new Date().getFullYear()}, TEC THA Workspace Pvt. Ltd. All Rights Reserved.
+        </div>
+
+        {/* Right: Support Email */}
+        <div>
+          <a href="mailto:support@tectha.com" className="hover:text-slate-900 dark:hover:text-white transition-colors font-semibold">
+            support@tectha.com
+          </a>
+        </div>
+      </div>
+
     </section>
   );
 };
