@@ -6,6 +6,13 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const meetingRoutes = require('./routes/meetingRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
+const groupRoutes = require('./routes/groupRoutes');
+const conversationRoutes = require('./routes/conversationRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const workReportRoutes = require('./routes/workReportRoutes');
+const leaveRoutes = require('./routes/leaveRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
@@ -16,8 +23,7 @@ app.use(helmet());
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   'http://localhost:5173',
-  'http://localhost:5174',
-
+  'http://localhost:5174'
 ].filter(Boolean);
 
 const corsOptions = {
@@ -52,6 +58,13 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/meetings', meetingRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/groups', groupRoutes);
+app.use('/api/conversations', conversationRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/work-reports', workReportRoutes);
+app.use('/api/leaves', leaveRoutes);
 
 // Error Handling Middleware
 app.use(notFound);

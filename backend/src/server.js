@@ -2,9 +2,14 @@ const dotenv = require('dotenv');
 // Load environment variables
 dotenv.config();
 
+const http = require('http');
 const app = require('./app');
 const connectDB = require('./config/db');
 const User = require('./models/User');
+const attendanceArchiveJob = require('./jobs/attendanceArchiveJob');
+const taskReminderJob = require('./jobs/taskReminderJob');
+const workReportReminderJob = require('./jobs/workReportReminderJob');
+const { initSocketServer } = require('./sockets/chatSocket');
 
 const PORT = process.env.PORT || 5000;
 
@@ -59,18 +64,35 @@ const seedInitialUsers = async () => {
   }
 };
 
+// Create HTTP Server & Integrate Socket.IO
+const httpServer = http.createServer(app);
+
+const io = initSocketServer(httpServer, {
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
+  credentials: true
+});
+
+// Attach io instance to express app
+app.set('io', io);
+
 // Connect Database & Start Server
 connectDB().then(() => {
   seedInitialUsers();
+  attendanceArchiveJob.initCronJob();
+  taskReminderJob.initCronJobs();
+  workReportReminderJob.initCronJob();
 
-  const server = app.listen(PORT, () => {
+  httpServer.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    console.log(`Real-Time Socket.IO Server initialized on port ${PORT}`);
   });
 
   // Handle Unhandled Promise Rejections
   process.on('unhandledRejection', (err) => {
     console.error(`Unhandled Rejection Error: ${err.message}`);
-    server.close(() => process.exit(1));
+    httpServer.close(() => process.exit(1));
   });
 
   // Handle Uncaught Exceptions

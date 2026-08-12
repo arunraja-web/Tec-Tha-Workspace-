@@ -81,6 +81,11 @@ const createUser = async (adminUser, userData) => {
     role: role || 'employee'
   });
 
+  if (user.role === 'founder') {
+    const groupService = require('./groupService');
+    await groupService.addFounderToAllActiveGroups(user._id);
+  }
+
   // Log Activity
   await ActivityLog.create({
     performedBy: adminUser._id,
@@ -262,6 +267,8 @@ const updateUser = async (adminUser, targetUserId, updateData) => {
     isActive: user.isActive
   };
 
+  const oldRole = user.role;
+
   if (name !== undefined) user.name = name.trim();
   if (email !== undefined) user.email = newEmail;
   if (secondaryEmail !== undefined) user.secondaryEmail = newSecondaryEmail;
@@ -270,6 +277,11 @@ const updateUser = async (adminUser, targetUserId, updateData) => {
   if (isActive !== undefined) user.isActive = isActive;
 
   const updatedUser = await user.save();
+
+  if (updatedUser.role === 'founder' && oldRole !== 'founder') {
+    const groupService = require('./groupService');
+    await groupService.addFounderToAllActiveGroups(updatedUser._id);
+  }
 
   // Log Activity
   await ActivityLog.create({
@@ -325,6 +337,11 @@ const updateUserRole = async (adminUser, targetUserId, newRole) => {
   const oldRole = user.role;
   user.role = newRole;
   const updatedUser = await user.save();
+
+  if (newRole === 'founder' && oldRole !== 'founder') {
+    const groupService = require('./groupService');
+    await groupService.addFounderToAllActiveGroups(updatedUser._id);
+  }
 
   // Log Activity
   await ActivityLog.create({
