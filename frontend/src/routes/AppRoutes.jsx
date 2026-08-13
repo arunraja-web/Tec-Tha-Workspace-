@@ -10,6 +10,10 @@ import AdminAttendancePage from '../pages/admin/Attendance';
 import FounderAttendanceAnalyticsPage from '../pages/founder/AttendanceAnalytics';
 import MyAttendancePage from '../pages/employee/MyAttendance';
 
+import AdminGroupsPage from '../pages/admin/Groups';
+import FounderGroupsPage from '../pages/founder/Groups';
+import EmployeeMyGroupsPage from '../pages/employee/MyGroups';
+
 import ProtectedRoute from './ProtectedRoute';
 import RoleRoute from './RoleRoute';
 import { ROLES } from '../constants/roles';
@@ -84,6 +88,40 @@ export const AppRoutes = () => {
           <ProtectedRoute>
             <RoleRoute allowedRoles={[ROLES.EMPLOYEE]}>
               <MyAttendancePage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Group Management Module Routes */}
+      <Route
+        path="/admin/groups"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.ADMIN]}>
+              <AdminGroupsPage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/founder/groups"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.FOUNDER]}>
+              <FounderGroupsPage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/employee/groups"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.EMPLOYEE]}>
+              <EmployeeMyGroupsPage />
             </RoleRoute>
           </ProtectedRoute>
         }

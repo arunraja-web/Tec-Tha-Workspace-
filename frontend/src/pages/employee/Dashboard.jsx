@@ -39,6 +39,9 @@ export const EmployeeDashboard = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <Button to="/employee/groups" variant="outline" size="sm">
+              My Groups
+            </Button>
             <Button to="/" variant="outline" size="sm">
               View Public Website
             </Button>
