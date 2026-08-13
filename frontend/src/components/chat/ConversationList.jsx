@@ -42,13 +42,13 @@ export const ConversationList = ({
   });
 
   return (
-    <div className="flex flex-col h-full bg-slate-50/70 dark:bg-neutral-950/60 border-r border-slate-200 dark:border-neutral-800 w-full md:w-80 lg:w-96 shrink-0">
+    <div className="flex flex-col h-full bg-[#111b21] border-r border-neutral-800 w-full md:w-80 lg:w-96 shrink-0">
       {/* Header & New Chat CTA */}
-      <div className="p-4 border-b border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 space-y-3">
+      <div className="p-4 border-b border-neutral-800 bg-[#202c33] space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-[#0562ff]" />
-            <h1 className="text-base font-bold text-slate-900 dark:text-white">
+            <MessageSquare className="w-5 h-5 text-[#00a884]" />
+            <h1 className="text-base font-bold text-[#e9edef]">
               Conversations
             </h1>
           </div>
@@ -64,13 +64,13 @@ export const ConversationList = ({
 
         {/* Local Search Input */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8696a0]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search conversations..."
-            className="w-full pl-9 pr-4 py-2 bg-slate-100 dark:bg-neutral-800/80 border border-slate-200 dark:border-neutral-700/60 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0562ff]"
+            className="w-full pl-9 pr-4 py-2 bg-[#2a3942] border border-neutral-700/60 rounded-xl text-xs text-[#e9edef] placeholder-[#8696a0] focus:outline-none focus:ring-2 focus:ring-[#00a884]"
           />
         </div>
       </div>

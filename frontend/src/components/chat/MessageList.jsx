@@ -40,7 +40,7 @@ export const MessageList = ({
   return (
     <div
       ref={containerRef}
-      className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-1 bg-[#efeae2] dark:bg-[#0b141a] custom-scrollbar"
+      className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-1 bg-[#0b141a] custom-scrollbar"
     >
       {/* Load Older Messages Trigger */}
       {hasMore && (
@@ -48,7 +48,7 @@ export const MessageList = ({
           <button
             type="button"
             onClick={onLoadOlder}
-            className="px-3 py-1.5 bg-white/90 dark:bg-[#182229] hover:bg-slate-100 dark:hover:bg-[#202c33] text-slate-700 dark:text-[#8696a0] text-xs font-semibold rounded-full border border-slate-200 dark:border-white/5 transition-colors cursor-pointer shadow-xs"
+            className="px-3 py-1.5 bg-[#182229] hover:bg-[#202c33] text-[#8696a0] text-xs font-semibold rounded-full border border-white/5 transition-colors cursor-pointer shadow-xs"
           >
             Load older messages
           </button>
@@ -78,7 +78,7 @@ export const MessageList = ({
           <React.Fragment key={message._id || index}>
             {showDateDivider && (
               <div className="flex justify-center my-3 select-none">
-                <span className="px-3 py-1 bg-white/90 dark:bg-[#182229] text-slate-600 dark:text-[#8696a0] text-[11px] font-semibold rounded-lg shadow-xs border border-slate-200 dark:border-white/5">
+                <span className="px-3 py-1 bg-[#182229] text-[#8696a0] text-[11px] font-semibold rounded-lg shadow-xs border border-white/5">
                   {currentDateStr}
                 </span>
               </div>

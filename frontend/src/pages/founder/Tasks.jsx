@@ -15,7 +15,6 @@ import {
   cancelTaskThunk,
   archiveTaskThunk,
   restoreTaskThunk,
-  deleteTaskThunk,
   duplicateTaskThunk,
   fetchTaskComments,
   addCommentThunk,
@@ -51,23 +50,19 @@ import TaskEmptyState from '../../components/tasks/TaskEmptyState';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 
 import {
-  ListTodo,
+  Crown,
   PlusCircle,
   BarChart3,
-  RefreshCw,
   LogOut,
-  Globe,
   Users,
-  MessageSquare,
   AlertCircle,
   CheckCircle,
   ChevronLeft,
   ChevronRight,
-  Shield,
   X
 } from 'lucide-react';
 
-export const AdminTasksPage = () => {
+export const FounderTasksPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -100,7 +95,7 @@ export const AdminTasksPage = () => {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
-  // Load Employees and Groups for Dropdowns
+  // Load Employees and Groups
   useEffect(() => {
     const loadDropdownData = async () => {
       try {
@@ -151,7 +146,6 @@ export const AdminTasksPage = () => {
     }
   }, [error, successMessage, dispatch]);
 
-  // Task Actions
   const handleOpenCreateModal = () => {
     setEditingTask(null);
     setShowCreateModal(true);
@@ -211,7 +205,7 @@ export const AdminTasksPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col justify-between relative bg-slate-100 font-montserrat selection:bg-[#0562ff] selection:text-white">
-      {/* Background Decorative SVG */}
+      {/* Background SVG */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
           <rect width="1600" height="900" fill="#f4f5f7" />
@@ -221,12 +215,11 @@ export const AdminTasksPage = () => {
         </svg>
       </div>
 
-      {/* Sticky Navbar Header */}
+      {/* Header */}
       <header className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-md sticky top-0 z-40">
         <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-          {/* Left: Brand Logo & Title */}
           <div className="flex items-center gap-4 sm:gap-6">
-            <Link to="/admin/dashboard" className="flex items-center gap-2">
+            <Link to="/founder/dashboard" className="flex items-center gap-2">
               <img
                 src="/logo1.webp"
                 alt="TEC THA Workspace Logo"
@@ -238,33 +231,32 @@ export const AdminTasksPage = () => {
             <div className="flex items-center gap-3">
               <div>
                 <h1 className="text-lg sm:text-xl font-bold font-montserrat text-slate-900 leading-tight">
-                  TASK MANAGEMENT
+                  EXECUTIVE TASK MANAGEMENT
                 </h1>
                 <p className="text-xs text-slate-500 font-medium hidden sm:block">
-                  Company Task Control Center & Performance Analytics
+                  TEC THA Executive Operations & Strategic Task Oversight
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right: Profile & Actions */}
           <div className="flex items-center gap-2.5 sm:gap-3.5">
             <div className="hidden lg:flex items-center gap-3 px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-none">
-              <div className="w-8 h-8 rounded-none bg-[#0562ff] text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+              <div className="w-8 h-8 rounded-none bg-amber-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'F'}
               </div>
               <div className="text-left text-sm">
-                <div className="font-semibold text-slate-900 leading-none">{user?.name || 'Administrator'}</div>
-                <div className="text-xs text-slate-500 font-medium max-w-[150px] truncate">{user?.email || 'admin@tectha.com'}</div>
+                <div className="font-semibold text-slate-900 leading-none">{user?.name || 'Founder User'}</div>
+                <div className="text-xs text-slate-500 font-medium max-w-[150px] truncate">{user?.email || 'founder@tectha.com'}</div>
               </div>
             </div>
 
             <Link
-              to="/admin/dashboard"
+              to="/founder/dashboard"
               className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2"
-              title="Dashboard Home"
+              title="Dashboard"
             >
-              <Shield className="w-4.5 h-4.5 text-[#0562ff]" />
+              <Crown className="w-4.5 h-4.5 text-amber-500" />
               <span className="hidden sm:inline">Dashboard</span>
             </Link>
 
@@ -279,10 +271,9 @@ export const AdminTasksPage = () => {
         </div>
       </header>
 
-      {/* Main Container */}
+      {/* Main Content Body */}
       <div className="relative z-10 w-full flex-grow flex flex-col">
         <main className="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 flex-grow">
-          {/* Notification Alerts */}
           {error && (
             <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-2">
@@ -307,12 +298,11 @@ export const AdminTasksPage = () => {
             </div>
           )}
 
-          {/* Action Bar & Controls */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white border border-slate-200 p-4 shadow-xs">
             <TaskSearch
               value={filters.search}
               onChange={(val) => handleFilterChange({ search: val })}
-              placeholder="Search company tasks..."
+              placeholder="Search executive tasks..."
             />
 
             <div className="flex items-center gap-3">
@@ -325,7 +315,7 @@ export const AdminTasksPage = () => {
                 }`}
               >
                 <BarChart3 className="w-4 h-4" />
-                <span>{showAnalytics ? 'Hide Analytics' : 'Show Analytics'}</span>
+                <span>{showAnalytics ? 'Hide Executive Analytics' : 'Executive Analytics'}</span>
               </button>
 
               <button
@@ -338,7 +328,6 @@ export const AdminTasksPage = () => {
             </div>
           </div>
 
-          {/* Analytics Panel */}
           {showAnalytics && (
             <TaskAnalyticsWidget
               analytics={analytics}
@@ -351,7 +340,6 @@ export const AdminTasksPage = () => {
             />
           )}
 
-          {/* Filters Bar */}
           <TaskFilters
             filters={filters}
             onFilterChange={handleFilterChange}
@@ -363,13 +351,12 @@ export const AdminTasksPage = () => {
             onViewModeChange={setViewMode}
           />
 
-          {/* Task Grid/Table */}
           {loading ? (
             <TaskSkeleton count={6} />
           ) : tasks.length === 0 ? (
             <TaskEmptyState
-              title="No company tasks found"
-              message="Try adjusting your search criteria or create a new task."
+              title="No executive tasks found"
+              message="No tasks found matching your filter parameters."
               canCreate={true}
               onCreateTask={handleOpenCreateModal}
             />
@@ -384,7 +371,6 @@ export const AdminTasksPage = () => {
                 canManage={true}
               />
 
-              {/* Pagination Bar */}
               {pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between bg-white border border-slate-200 px-4 py-3 shadow-xs text-xs font-semibold text-slate-700">
                   <span>
@@ -413,13 +399,11 @@ export const AdminTasksPage = () => {
           )}
         </main>
 
-        {/* Footer */}
         <footer className="relative z-10 w-full text-center py-5 text-sm text-slate-500 font-medium space-y-1 border-t border-slate-200/80 bg-white/60 backdrop-blur-xs mt-auto">
           <div>© {new Date().getFullYear()}, TEC THA Workspace Pvt. Ltd. All Rights Reserved.</div>
         </footer>
       </div>
 
-      {/* Task Create / Edit Modal */}
       {showCreateModal && (
         <TaskFormModal
           isOpen={showCreateModal}
@@ -432,7 +416,6 @@ export const AdminTasksPage = () => {
         />
       )}
 
-      {/* Task Details Modal */}
       {showDetailsModal && selectedTask && (
         <TaskDetailsModal
           isOpen={showDetailsModal}
@@ -450,7 +433,6 @@ export const AdminTasksPage = () => {
           onReopen={async (id) => { await dispatch(reopenTaskThunk(id)); loadTasks(); }}
           onCancel={async (id, rs) => { await dispatch(cancelTaskThunk({ id, reason: rs })); loadTasks(); }}
           onArchiveToggle={handleArchiveToggle}
-          onDelete={async (id) => { await dispatch(deleteTaskThunk(id)); setShowDetailsModal(false); loadTasks(); }}
           onDuplicate={async (id) => { await dispatch(duplicateTaskThunk(id)); loadTasks(); }}
           onReassign={async (id, emp) => { await dispatch(assignTaskThunk({ id, assignedTo: emp })); loadTasks(); }}
           onAddComment={async (id, txt) => { await dispatch(addCommentThunk({ id, text: txt })); }}
@@ -465,7 +447,6 @@ export const AdminTasksPage = () => {
         />
       )}
 
-      {/* Sign Out Confirmation Dialog */}
       <ConfirmDialog
         isOpen={showSignOutConfirm}
         title="Confirm Sign Out"
@@ -481,4 +462,4 @@ export const AdminTasksPage = () => {
   );
 };
 
-export default AdminTasksPage;
+export default FounderTasksPage;

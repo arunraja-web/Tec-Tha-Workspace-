@@ -144,15 +144,15 @@ export const MessageComposer = ({
   };
 
   return (
-    <div className="border-t border-slate-200 dark:border-neutral-800 bg-white dark:bg-[#202c33] p-3 sm:p-4 space-y-2">
+    <div className="border-t border-neutral-700/60 bg-[#202c33] p-3 sm:p-4 space-y-2">
       {/* Editing State Banner */}
       {editingMessage && (
-        <div className="flex items-center justify-between px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-lg text-xs text-amber-800 dark:text-amber-300">
+        <div className="flex items-center justify-between px-3 py-1.5 bg-amber-950/40 border border-amber-900 rounded-lg text-xs text-amber-300">
           <span>Editing message</span>
           <button
             type="button"
             onClick={onCancelEdit}
-            className="p-1 hover:bg-amber-100 dark:hover:bg-amber-900 rounded-md font-semibold"
+            className="p-1 hover:bg-amber-900 rounded-md font-semibold"
           >
             Cancel
           </button>
@@ -191,7 +191,7 @@ export const MessageComposer = ({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled || uploading}
-            className="p-2.5 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#2a3942] rounded-xl transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
+            className="p-2.5 text-[#8696a0] hover:text-[#e9edef] hover:bg-[#2a3942] rounded-xl transition-colors shrink-0 disabled:opacity-50 cursor-pointer"
             title="Attach file"
           >
             <Paperclip className="w-5 h-5" />
@@ -211,7 +211,7 @@ export const MessageComposer = ({
                 : 'Type a message... (Shift+Enter for newline)'
             }
             rows={1}
-            className="w-full resize-none py-2.5 px-4 rounded-2xl bg-slate-100 dark:bg-[#2a3942] border border-slate-200 dark:border-neutral-700/60 text-xs sm:text-sm text-slate-900 dark:text-[#e9edef] placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#005c4b] dark:focus:ring-[#008069] max-h-32 min-h-[42px]"
+            className="w-full resize-none py-2.5 px-4 rounded-2xl bg-[#2a3942] border border-neutral-700/60 text-xs sm:text-sm text-[#e9edef] placeholder-[#8696a0] focus:outline-none focus:ring-2 focus:ring-[#008069] max-h-32 min-h-[42px]"
           />
         </div>
 

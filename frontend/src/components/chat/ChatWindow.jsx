@@ -56,7 +56,7 @@ export const ChatWindow = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-white dark:bg-neutral-900 overflow-hidden relative">
+    <div className="flex-1 flex flex-col h-full bg-[#0b141a] overflow-hidden relative">
       {/* Header */}
       <ChatHeader
         conversation={conversation}

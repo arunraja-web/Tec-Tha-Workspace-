@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { Crown, LogOut, ShieldCheck, Activity, Users, TrendingUp, Sparkles, MessageSquare } from 'lucide-react';
-import Button from '../../components/common/Button';
+import {
+  Crown,
+  LogOut,
+  Globe,
+  Users,
+  MessageSquare,
+  ListTodo
+} from 'lucide-react';
 import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 
@@ -62,19 +68,68 @@ export const FounderDashboard = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Button to="/chat" variant="primary" size="sm" icon={MessageSquare}>
-              Chat
-            </Button>
-            <Button to="/founder/groups" variant="outline" size="sm">
-              Groups
-            </Button>
-            <Button to="/" variant="outline" size="sm">
-              View Public Website
-            </Button>
-            <Button onClick={handleLogout} variant="secondary" size="sm" icon={LogOut}>
-              Sign Out
-            </Button>
+          {/* Right: Profile Info & Actions */}
+          <div className="flex items-center gap-2.5 sm:gap-3.5">
+            {/* User Profile Pill */}
+            <div className="hidden lg:flex items-center gap-3 px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-none">
+              <div className="w-8 h-8 rounded-none bg-amber-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'F'}
+              </div>
+              <div className="text-left text-sm">
+                <div className="font-semibold text-slate-900 leading-none">{user?.name || 'Founder User'}</div>
+                <div className="text-xs text-slate-500 font-medium max-w-[150px] truncate">{user?.email || 'founder@tectha.com'}</div>
+              </div>
+            </div>
+
+            {/* Executive Tasks Link */}
+            <Link
+              to="/founder/tasks"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2 font-montserrat"
+              title="Executive Tasks"
+            >
+              <ListTodo className="w-4.5 h-4.5 text-[#0562ff]" />
+              <span className="hidden sm:inline">Tasks</span>
+            </Link>
+
+            {/* Chat Navigation Link */}
+            <Link
+              to="/chat"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2 font-montserrat"
+              title="Real-time Chat"
+            >
+              <MessageSquare className="w-4.5 h-4.5 text-[#0562ff]" />
+              <span className="hidden sm:inline">Chat</span>
+            </Link>
+
+            {/* Groups Link */}
+            <Link
+              to="/founder/groups"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2 font-montserrat"
+            >
+              <Users className="w-4.5 h-4.5" />
+              <span className="hidden sm:inline">Groups</span>
+            </Link>
+
+            {/* External Website Link */}
+            <a
+              href="https://tectha.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2"
+              title="Official Website"
+            >
+              <Globe className="w-4.5 h-4.5" />
+              <span className="hidden sm:inline">Website</span>
+            </a>
+
+            {/* Sign Out Button */}
+            <button
+              onClick={handleLogout}
+              className="bg-[#0562ff] hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-none shadow-sm transition-all flex items-center gap-2 cursor-pointer font-montserrat"
+            >
+              <LogOut className="w-4.5 h-4.5" />
+              <span>Sign Out</span>
+            </button>
           </div>
 
         </div>
