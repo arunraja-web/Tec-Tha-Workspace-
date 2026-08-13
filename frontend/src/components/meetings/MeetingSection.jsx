@@ -16,13 +16,12 @@ import MeetingForm from './MeetingForm';
 import MeetingSkeleton from './MeetingSkeleton';
 import MeetingEmptyState from './MeetingEmptyState';
 import ConfirmDialog from '../common/ConfirmDialog';
-import Button from '../common/Button';
 import { Video, Plus, Search, RefreshCw, AlertCircle, CheckCircle2, X } from 'lucide-react';
 
 export const MeetingSection = () => {
   const dispatch = useDispatch();
   const { user } = useAuth();
-  const { meetings, loading, error, success } = useSelector((state) => state.meetings);
+  const { meetings, loading, error } = useSelector((state) => state.meetings);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -103,7 +102,6 @@ export const MeetingSection = () => {
     const meetingId = deactivatingMeeting.id || deactivatingMeeting._id;
     const isCurrentlyActive = deactivatingMeeting.isActive !== false;
 
-    // Use status toggle or soft delete
     const action = await dispatch(
       updateMeetingStatus({ id: meetingId, isActive: !isCurrentlyActive })
     );
@@ -120,80 +118,77 @@ export const MeetingSection = () => {
   };
 
   return (
-    <div className="space-y-6 pt-2">
+    <div className="space-y-6 font-montserrat">
       {/* Toast Feedback Notification */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl border shadow-2xl flex items-center gap-3 text-xs font-semibold animate-slide-up ${
+          className={`p-4 rounded-none border text-sm font-semibold flex items-center justify-between shadow-sm font-montserrat ${
             toast.type === 'success'
-              ? 'bg-emerald-950/90 text-emerald-200 border-emerald-500/40'
-              : 'bg-rose-950/90 text-rose-200 border-rose-500/40'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
           }`}
         >
-          {toast.type === 'success' ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          ) : (
-            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-          )}
-          <span>{toast.message}</span>
-          <button
-            onClick={() => setToast(null)}
-            className="ml-2 hover:opacity-80"
-          >
-            <X className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-2.5">
+            {toast.type === 'success' ? (
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+            )}
+            <span>{toast.message}</span>
+          </div>
+          <button onClick={() => setToast(null)} className="cursor-pointer">
+            <X className="w-5 h-5" />
           </button>
         </div>
       )}
 
       {/* Section Header Card */}
-      <div className="glass-card rounded-3xl p-6 md:p-8 border-slate-800 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-950/80 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+      <div className="bg-white border border-slate-200 rounded-none p-6 shadow-sm space-y-5 font-montserrat">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-none bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0562ff] shrink-0">
               <Video className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-extrabold text-white tracking-tight">
+              <h2 className="text-lg font-bold text-slate-900 uppercase tracking-wide">
                 Upcoming / Active Meetings
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
                 Join scheduled Google Meet links or schedule new employee syncs
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button
+            <button
+              type="button"
               onClick={() => loadMeetings(searchTerm)}
-              variant="outline"
-              size="sm"
-              icon={RefreshCw}
-              className={`border-slate-800 text-slate-300 hover:bg-slate-900 ${
-                loading ? 'animate-spin' : ''
-              }`}
+              className="p-2.5 rounded-none bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-300 transition-colors cursor-pointer"
               title="Refresh meetings"
-            />
-            <Button
-              onClick={handleOpenCreateModal}
-              variant="primary"
-              size="sm"
-              icon={Plus}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-500 font-bold px-4 shadow-md"
             >
-              Create Meeting
-            </Button>
+              <RefreshCw className={`w-4.5 h-4.5 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleOpenCreateModal}
+              className="px-5 py-2.5 rounded-none bg-[#0562ff] hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer font-montserrat uppercase tracking-wider whitespace-nowrap"
+            >
+              <Plus className="w-4.5 h-4.5" />
+              <span>Create Meeting</span>
+            </button>
           </div>
         </div>
 
         {/* Search Bar */}
         <div className="relative">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4.5 h-4.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchTerm}
             onChange={handleSearchChange}
             placeholder="Search meetings by title or description..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all"
+            className="w-full pl-10 pr-4 py-2.5 rounded-none bg-slate-50 text-xs font-medium text-slate-900 placeholder-slate-400 border border-slate-300 outline-none focus:border-[#0562ff] focus:ring-1 focus:ring-[#0562ff] transition-all font-montserrat"
           />
         </div>
       </div>
@@ -238,6 +233,7 @@ export const MeetingSection = () => {
         message={`Are you sure you want to deactivate "${deactivatingMeeting?.title}"? Deactivated meetings will no longer be visible on the active dashboard.`}
         confirmLabel="Deactivate"
         cancelLabel="Cancel"
+        variant="rose"
         onConfirm={handleConfirmDeactivate}
         onCancel={() => setDeactivatingMeeting(null)}
         loading={loading}

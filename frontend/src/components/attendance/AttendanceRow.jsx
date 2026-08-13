@@ -1,11 +1,20 @@
 import React from 'react';
-import { User } from 'lucide-react';
 import AttendanceStatusSelect from './AttendanceStatusSelect';
+
+// Helper for 2-letter user initials
+const getUserInitials = (name) => {
+  if (!name) return 'U';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
 
 /**
  * Individual Employee Attendance Row in Admin Daily Table
+ * Includes Serial Number (S.NO) and User Initials Badge (rounded-none)
  */
 export const AttendanceRow = ({
+  index = 0,
   employeeData,
   activeSession = 'morning',
   onStatusChange,
@@ -19,36 +28,44 @@ export const AttendanceRow = ({
   const otherSessionData = activeSession === 'morning' ? evening : morning;
   const otherStatus = otherSessionData ? otherSessionData.status : 'Not Marked';
 
+  const initials = getUserInitials(employee.name);
+  const serialNumber = index + 1;
+
   return (
-    <tr className="border-b border-slate-800/60 hover:bg-slate-900/50 transition-colors group">
-      {/* Employee Details */}
-      <td className="py-3.5 px-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700/50 flex items-center justify-center text-slate-300 font-bold text-xs group-hover:border-indigo-500/40 group-hover:bg-indigo-950/30 transition-all">
-            {employee.name ? employee.name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
-          </div>
-          <div>
-            <div className="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">
-              {employee.name || 'Unknown Employee'}
-            </div>
-            <div className="text-[11px] text-slate-400">{employee.email}</div>
-          </div>
+    <tr className="hover:bg-slate-50/80 transition-colors font-montserrat">
+      {/* Serial Number S.NO */}
+      <td className="py-3.5 px-3 text-center font-bold text-slate-600 text-xs sm:text-sm font-mono">
+        {serialNumber}
+      </td>
+
+      {/* User Letters / Initials Badge */}
+      <td className="py-3.5 px-3 text-center">
+        <div className="w-9 h-9 rounded-none bg-blue-50 border border-blue-200 flex items-center justify-center font-bold text-[#0562ff] uppercase text-xs font-montserrat shadow-2xs mx-auto">
+          {initials}
         </div>
+      </td>
+
+      {/* Employee Name & Email */}
+      <td className="py-3.5 px-4">
+        <div className="font-bold text-slate-900 text-sm font-montserrat leading-tight">
+          {employee.name || 'Unknown Employee'}
+        </div>
+        <div className="text-xs text-slate-500 font-mono">{employee.email}</div>
       </td>
 
       {/* Department */}
       <td className="py-3.5 px-4 hidden md:table-cell">
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-900 text-slate-300 border border-slate-800">
+        <span className="inline-flex items-center px-2.5 py-1 rounded-none text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider font-montserrat">
           {employee.department || 'General'}
         </span>
       </td>
 
-      {/* Other Session Status Summary (Read Only Context) */}
-      <td className="py-3.5 px-4 text-xs capitalize text-slate-400 hidden sm:table-cell">
-        <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">
+      {/* Other Session Status Summary */}
+      <td className="py-3.5 px-4 text-xs capitalize text-slate-600 hidden sm:table-cell font-montserrat">
+        <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-bold">
           {otherSession}
         </span>
-        <span className={`font-semibold ${otherStatus === 'present' ? 'text-emerald-400' : otherStatus === 'absent' ? 'text-rose-400' : 'text-slate-400'}`}>
+        <span className={`font-bold ${otherStatus === 'present' ? 'text-emerald-700' : otherStatus === 'absent' ? 'text-rose-700' : 'text-slate-600'}`}>
           {otherStatus}
         </span>
       </td>

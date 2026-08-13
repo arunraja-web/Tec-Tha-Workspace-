@@ -1,35 +1,40 @@
 import React from 'react';
-import { CheckCircle2, XCircle, CalendarOff, Palmtree, HelpCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, CalendarOff, Clock, HelpCircle } from 'lucide-react';
 
 /**
- * Attendance Status Dropdown Select
- * Uses exact backend values: 'present', 'absent', 'leave', 'holiday'
+ * Attendance Status Dropdown Select Component
+ * Light Enterprise Dashboard Theme (rounded-none, font-montserrat, clean Lucide icons)
  */
 const STATUS_CONFIG = {
   present: {
     label: 'Present',
-    bg: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/30 hover:bg-emerald-900/60',
+    bg: 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100',
     icon: CheckCircle2,
+    iconColor: 'text-emerald-600',
   },
   absent: {
     label: 'Absent',
-    bg: 'bg-rose-950/60 text-rose-400 border-rose-500/30 hover:bg-rose-900/60',
+    bg: 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100',
     icon: XCircle,
+    iconColor: 'text-rose-600',
   },
   leave: {
     label: 'Leave',
-    bg: 'bg-amber-950/60 text-amber-400 border-amber-500/30 hover:bg-amber-900/60',
+    bg: 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100',
     icon: CalendarOff,
+    iconColor: 'text-amber-600',
   },
   holiday: {
     label: 'Holiday',
-    bg: 'bg-indigo-950/60 text-indigo-400 border-indigo-500/30 hover:bg-indigo-900/60',
-    icon: Palmtree,
+    bg: 'bg-blue-50 text-[#0562ff] border-blue-300 hover:bg-blue-100',
+    icon: Clock,
+    iconColor: 'text-[#0562ff]',
   },
   not_marked: {
     label: 'Not Marked',
-    bg: 'bg-slate-900 text-slate-400 border-slate-700/50 hover:bg-slate-800',
+    bg: 'bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100',
     icon: HelpCircle,
+    iconColor: 'text-slate-500',
   },
 };
 
@@ -44,34 +49,31 @@ export const AttendanceStatusSelect = ({
   const IconComponent = config.icon;
 
   return (
-    <div className={`relative inline-block ${className}`}>
-      <div className="flex items-center gap-1.5">
-        <IconComponent className={`w-4 h-4 shrink-0 ${config.bg.split(' ')[1]}`} />
+    <div className={`relative inline-block font-montserrat ${className}`}>
+      <div className="flex items-center gap-1.5 justify-end">
+        <IconComponent className={`w-4 h-4 shrink-0 ${config.iconColor}`} />
         <select
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          className={`appearance-none bg-slate-900 text-xs font-semibold px-3 py-1.5 pr-7 rounded-xl border transition-all outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${config.bg}`}
+          className={`bg-white text-xs font-bold px-3 py-1.5 rounded-none border shadow-2xs transition-all outline-none focus:border-[#0562ff] focus:ring-1 focus:ring-[#0562ff] cursor-pointer disabled:opacity-50 font-montserrat ${config.bg}`}
         >
-          <option value="" disabled className="bg-slate-900 text-slate-400">
+          <option value="" disabled className="bg-white text-slate-400">
             -- Select Status --
           </option>
-          <option value="present" className="bg-slate-900 text-emerald-400 font-medium">
+          <option value="present" className="bg-white text-emerald-700 font-bold">
             Present
           </option>
-          <option value="absent" className="bg-slate-900 text-rose-400 font-medium">
+          <option value="absent" className="bg-white text-rose-700 font-bold">
             Absent
           </option>
-          <option value="leave" className="bg-slate-900 text-amber-400 font-medium">
+          <option value="leave" className="bg-white text-amber-700 font-bold">
             Leave
           </option>
-          <option value="holiday" className="bg-slate-900 text-indigo-400 font-medium">
+          <option value="holiday" className="bg-white text-[#0562ff] font-bold">
             Holiday
           </option>
         </select>
-        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">
-          ▼
-        </span>
       </div>
     </div>
   );

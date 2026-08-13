@@ -2,7 +2,7 @@ import React from 'react';
 import { Users, CheckCircle2, XCircle, CalendarOff, Palmtree, HelpCircle } from 'lucide-react';
 
 /**
- * Daily Attendance summary cards component
+ * Daily Attendance summary cards component with Zoho Dashboard aesthetic
  */
 export const AttendanceSummaryCards = ({ employees = [], session = 'morning' }) => {
   let total = employees.length;
@@ -24,65 +24,71 @@ export const AttendanceSummaryCards = ({ employees = [], session = 'morning' }) 
 
   const cards = [
     {
-      title: 'Total Employees',
+      title: 'Total Workforce',
       value: total,
-      subtext: 'Active workforce',
+      subtext: 'Active accounts',
       icon: Users,
-      color: 'text-indigo-400',
-      bg: 'bg-indigo-950/40 border-indigo-500/20',
+      color: 'text-slate-900',
+      bg: 'bg-slate-50 border-slate-200',
+      iconBg: 'bg-slate-100 text-slate-700 border-slate-300',
     },
     {
-      title: 'Present',
+      title: 'Present Today',
       value: present,
       subtext: `${session === 'morning' ? 'Morning' : 'Evening'} session`,
       icon: CheckCircle2,
-      color: 'text-emerald-400',
-      bg: 'bg-emerald-950/40 border-emerald-500/20',
+      color: 'text-emerald-700',
+      bg: 'bg-emerald-50/60 border-emerald-200',
+      iconBg: 'bg-emerald-100 text-emerald-700 border-emerald-300',
     },
     {
       title: 'Absent',
       value: absent,
       subtext: `${session === 'morning' ? 'Morning' : 'Evening'} session`,
       icon: XCircle,
-      color: 'text-rose-400',
-      bg: 'bg-rose-950/40 border-rose-500/20',
+      color: 'text-rose-700',
+      bg: 'bg-rose-50/60 border-rose-200',
+      iconBg: 'bg-rose-100 text-rose-700 border-rose-300',
     },
     {
       title: 'On Leave',
       value: leave,
       subtext: 'Approved leaves',
       icon: CalendarOff,
-      color: 'text-amber-400',
-      bg: 'bg-amber-950/40 border-amber-500/20',
+      color: 'text-amber-700',
+      bg: 'bg-amber-50/60 border-amber-200',
+      iconBg: 'bg-amber-100 text-amber-700 border-amber-300',
     },
     {
       title: 'Not Marked',
       value: notMarked,
       subtext: 'Pending status',
       icon: HelpCircle,
-      color: 'text-slate-400',
-      bg: 'bg-slate-900 border-slate-800',
+      color: 'text-slate-700',
+      bg: 'bg-slate-50 border-slate-200',
+      iconBg: 'bg-slate-100 text-slate-500 border-slate-300',
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 font-montserrat">
       {cards.map((card, idx) => {
         const IconComponent = card.icon;
         return (
           <div
             key={idx}
-            className={`p-4 rounded-2xl border backdrop-blur-md flex flex-col justify-between space-y-2 transition-all hover:scale-[1.02] ${card.bg}`}
+            className={`p-4 rounded-none border shadow-2xs flex items-center justify-between transition-all bg-white ${card.bg}`}
           >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-300">{card.title}</span>
-              <IconComponent className={`w-4 h-4 ${card.color}`} />
-            </div>
             <div>
-              <div className={`text-2xl font-extrabold tracking-tight ${card.color}`}>
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">{card.title}</div>
+              <div className={`text-2xl font-extrabold font-montserrat ${card.color}`}>
                 {card.value}
               </div>
-              <p className="text-[10px] text-slate-400 mt-0.5">{card.subtext}</p>
+              <p className="text-[11px] text-slate-500 font-medium mt-0.5">{card.subtext}</p>
+            </div>
+
+            <div className={`w-9 h-9 rounded-none flex items-center justify-center font-bold border shrink-0 ${card.iconBg}`}>
+              <IconComponent className="w-4.5 h-4.5" />
             </div>
           </div>
         );

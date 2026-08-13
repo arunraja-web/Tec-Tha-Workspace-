@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { CalendarCheck, CheckCircle2, XCircle, CalendarOff, Percent, Calendar } from 'lucide-react';
 import AttendanceCalendar from '../../components/attendance/AttendanceCalendar';
 import AttendanceSkeleton from '../../components/attendance/AttendanceSkeleton';
-import { getCurrentYYYYMM, formatFriendlyMonth } from '../../utils/formatDate';
+import { getCurrentYYYYMM } from '../../utils/formatDate';
 
 export const MyAttendancePage = () => {
   const dispatch = useDispatch();
@@ -39,35 +39,35 @@ export const MyAttendancePage = () => {
   const attendancePercentage = totalApplicable > 0 ? ((presentCount / totalApplicable) * 100).toFixed(1) : 100;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 space-y-6 selection:bg-indigo-500 selection:text-white">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-slate-100 p-4 md:p-8 space-y-6 font-montserrat text-slate-900 selection:bg-[#0562ff] selection:text-white">
+      <div className="max-w-[1500px] mx-auto space-y-6">
         
         {/* Page Top Header */}
-        <div className="glass-card rounded-3xl p-6 border-indigo-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-white rounded-none p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 font-montserrat">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+            <div className="w-12 h-12 rounded-none bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0562ff] shrink-0">
               <CalendarCheck className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-extrabold text-white">My Attendance</h1>
-                <span className="bg-indigo-950/80 text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-500/30 uppercase">
+                <h1 className="text-xl font-bold text-slate-900 uppercase tracking-wide">My Personal Attendance</h1>
+                <span className="bg-blue-50 text-[#0562ff] text-xs font-bold px-3 py-1 rounded-none border border-blue-200 uppercase tracking-wider">
                   Employee Dashboard
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Track your personal attendance records, session logs, and monthly statistics.
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Track your personal attendance records, session check-ins, and monthly performance.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 bg-slate-900/90 p-2 rounded-2xl border border-slate-800">
-            <label className="text-xs font-semibold text-slate-300">Month:</label>
+          <div className="flex items-center gap-3 bg-slate-50 p-2.5 rounded-none border border-slate-200">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Select Month:</label>
             <input
               type="month"
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="bg-slate-950 text-xs font-bold text-white border border-slate-700 rounded-xl px-3 py-1.5 outline-none focus:border-indigo-500"
+              className="bg-white text-xs font-bold text-slate-900 border border-slate-300 rounded-none px-3 py-1.5 outline-none focus:border-[#0562ff] focus:ring-1 focus:ring-[#0562ff] font-montserrat"
             />
           </div>
         </div>
@@ -76,43 +76,43 @@ export const MyAttendancePage = () => {
         {loading ? (
           <AttendanceSkeleton count={4} type="cards" />
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="p-4 rounded-2xl glass-card border-slate-800 flex items-center justify-between">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-montserrat">
+            <div className="p-4 rounded-none bg-emerald-50/60 border border-emerald-200 shadow-2xs flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-semibold text-slate-400 block">Present Sessions</span>
-                <span className="text-2xl font-extrabold text-emerald-400">{presentCount}</span>
+                <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">Present Sessions</span>
+                <span className="text-2xl font-extrabold text-emerald-700 font-montserrat">{presentCount}</span>
               </div>
-              <CheckCircle2 className="w-6 h-6 text-emerald-400/80" />
+              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
             </div>
 
-            <div className="p-4 rounded-2xl glass-card border-slate-800 flex items-center justify-between">
+            <div className="p-4 rounded-none bg-rose-50/60 border border-rose-200 shadow-2xs flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-semibold text-slate-400 block">Absent Sessions</span>
-                <span className="text-2xl font-extrabold text-rose-400">{absentCount}</span>
+                <span className="text-xs font-bold text-rose-700 uppercase tracking-wider block">Absent Sessions</span>
+                <span className="text-2xl font-extrabold text-rose-700 font-montserrat">{absentCount}</span>
               </div>
-              <XCircle className="w-6 h-6 text-rose-400/80" />
+              <XCircle className="w-6 h-6 text-rose-600" />
             </div>
 
-            <div className="p-4 rounded-2xl glass-card border-slate-800 flex items-center justify-between">
+            <div className="p-4 rounded-none bg-amber-50/60 border border-amber-200 shadow-2xs flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-semibold text-slate-400 block">Leave Sessions</span>
-                <span className="text-2xl font-extrabold text-amber-400">{leaveCount}</span>
+                <span className="text-xs font-bold text-amber-700 uppercase tracking-wider block">Leave Sessions</span>
+                <span className="text-2xl font-extrabold text-amber-700 font-montserrat">{leaveCount}</span>
               </div>
-              <CalendarOff className="w-6 h-6 text-amber-400/80" />
+              <CalendarOff className="w-6 h-6 text-amber-600" />
             </div>
 
-            <div className="p-4 rounded-2xl glass-card border-indigo-500/30 bg-indigo-950/20 flex items-center justify-between">
+            <div className="p-4 rounded-none bg-blue-50 border border-blue-200 shadow-2xs flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-semibold text-indigo-300 block">Attendance Rate</span>
-                <span className="text-2xl font-extrabold text-indigo-400">{attendancePercentage}%</span>
+                <span className="text-xs font-bold text-[#0562ff] uppercase tracking-wider block">Attendance Rate</span>
+                <span className="text-2xl font-extrabold text-[#0562ff] font-montserrat">{attendancePercentage}%</span>
               </div>
-              <Percent className="w-6 h-6 text-indigo-400/80" />
+              <Percent className="w-6 h-6 text-[#0562ff]" />
             </div>
           </div>
         )}
 
         {/* Personal Calendar View Grid */}
-        <div className="glass-card rounded-3xl p-6 border-slate-800">
+        <div className="bg-white rounded-none p-6 border border-slate-200 shadow-sm font-montserrat">
           <AttendanceCalendar
             employeeId={user?._id}
             month={selectedMonth}

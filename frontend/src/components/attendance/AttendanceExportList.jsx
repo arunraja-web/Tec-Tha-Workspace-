@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { FileSpreadsheet, Download, CheckCircle2, Clock, Calendar, Plus } from 'lucide-react';
 import AttendanceSkeleton from './AttendanceSkeleton';
 import AttendanceEmptyState from './AttendanceEmptyState';
-import Button from '../common/Button';
 import { formatFriendlyMonth, getCurrentYYYYMM } from '../../utils/formatDate';
 
 /**
- * Attendance Exports List & Manual Trigger Component
+ * Attendance Exports List & Manual Trigger Component (Light Dashboard Theme, rounded-none)
  */
 export const AttendanceExportList = ({
   exports = [],
@@ -20,16 +19,16 @@ export const AttendanceExportList = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-montserrat">
       {/* Top Manual Export Card */}
-      <div className="glass-card rounded-3xl p-6 border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-none p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-montserrat">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+          <div className="w-12 h-12 rounded-none bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0">
             <FileSpreadsheet className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">Generate Monthly Report</h3>
-            <p className="text-xs text-slate-400">
+            <h3 className="text-lg font-bold text-slate-900 uppercase tracking-wide">Generate Monthly Attendance Report</h3>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
               Compile monthly attendance records into an Excel spreadsheet & store report history.
             </p>
           </div>
@@ -40,102 +39,102 @@ export const AttendanceExportList = ({
             type="month"
             value={exportMonth}
             onChange={(e) => setExportMonth(e.target.value)}
-            className="bg-slate-900 text-xs font-bold text-white border border-slate-700 rounded-xl px-3 py-2 outline-none focus:border-indigo-500"
+            className="bg-slate-50 text-sm font-bold text-slate-900 border border-slate-300 rounded-none px-3.5 py-2.5 outline-none focus:border-[#0562ff] focus:ring-1 focus:ring-[#0562ff] font-montserrat"
           />
-          <Button
+          <button
             type="button"
             onClick={() => onExportTrigger && onExportTrigger(exportMonth)}
-            variant="primary"
-            size="sm"
-            icon={Plus}
-            className="bg-emerald-600 hover:bg-emerald-500 font-bold text-xs"
+            className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm rounded-none shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer font-montserrat uppercase tracking-wider whitespace-nowrap"
           >
-            Export Month
-          </Button>
+            <Plus className="w-4 h-4" />
+            <span>Export Month</span>
+          </button>
         </div>
       </div>
 
       {/* Export History Section */}
-      <div className="glass-card rounded-3xl p-6 border-slate-800 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div className="bg-white border border-slate-200 rounded-none shadow-sm divide-y divide-slate-200 font-montserrat">
+        <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Clock className="w-4 h-4 text-indigo-400" />
+            <h3 className="text-base font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2.5">
+              <Clock className="w-5 h-5 text-[#0562ff]" />
               Export Reports History
             </h3>
-            <p className="text-xs text-slate-400">View and download compiled Excel monthly attendance reports</p>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">View and download compiled Excel monthly attendance reports</p>
           </div>
-          <span className="text-xs font-bold text-slate-300 bg-slate-900 border border-slate-800 px-3 py-1 rounded-full">
+          <span className="text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1 rounded-none uppercase">
             {exports.length} Reports Available
           </span>
         </div>
 
-        {exports.length === 0 ? (
-          <AttendanceEmptyState
-            title="No Export Reports Available"
-            description="No monthly attendance report exports have been generated yet."
-            icon={FileSpreadsheet}
-          />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {exports.map((exp) => {
-              const downloadUrl = exp.cloudStorage?.url || exp.fileUrl;
-              const isCompleted = exp.status === 'completed';
+        <div className="p-5">
+          {exports.length === 0 ? (
+            <AttendanceEmptyState
+              title="No Export Reports Available"
+              description="No monthly attendance report exports have been generated yet."
+              icon={FileSpreadsheet}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {exports.map((exp) => {
+                const downloadUrl = exp.cloudStorage?.url || exp.fileUrl;
+                const isCompleted = exp.status === 'completed';
 
-              return (
-                <div
-                  key={exp._id || exp.month}
-                  className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-indigo-500/40 transition-all space-y-3 flex flex-col justify-between"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-0.5">
-                      <div className="text-sm font-extrabold text-white">
-                        {formatFriendlyMonth(exp.month)}
+                return (
+                  <div
+                    key={exp._id || exp.month}
+                    className="p-5 rounded-none bg-slate-50 border border-slate-200 space-y-3 flex flex-col justify-between"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <div className="text-base font-bold text-slate-900 font-montserrat">
+                          {formatFriendlyMonth(exp.month)}
+                        </div>
+                        <div className="text-xs text-slate-500 font-medium">
+                          Records: <strong className="text-slate-900">{exp.recordCount || 0}</strong>
+                        </div>
                       </div>
-                      <div className="text-[11px] text-slate-400">
-                        Records: <strong className="text-slate-200">{exp.recordCount || 0}</strong>
-                      </div>
+
+                      <span
+                        className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-none border uppercase tracking-wider ${
+                          isCompleted
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                            : 'bg-amber-50 text-amber-800 border-amber-200'
+                        }`}
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        {exp.status || 'Completed'}
+                      </span>
                     </div>
 
-                    <span
-                      className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                        isCompleted
-                          ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/30'
-                          : 'bg-amber-950/80 text-amber-300 border-amber-500/30'
-                      }`}
-                    >
-                      <CheckCircle2 className="w-3 h-3" />
-                      {exp.status || 'Completed'}
-                    </span>
-                  </div>
+                    <div className="text-xs text-slate-400 pt-2 border-t border-slate-200 flex items-center justify-between font-medium">
+                      <span>Generated: {exp.createdAt ? new Date(exp.createdAt).toLocaleDateString() : 'N/A'}</span>
+                    </div>
 
-                  <div className="text-[10px] text-slate-500 pt-2 border-t border-slate-800/80 flex items-center justify-between">
-                    <span>Generated: {exp.createdAt ? new Date(exp.createdAt).toLocaleDateString() : 'N/A'}</span>
+                    {downloadUrl ? (
+                      <a
+                        href={downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-none text-xs font-bold bg-[#0562ff] text-white hover:bg-blue-700 shadow-2xs transition-all text-center uppercase tracking-wider font-montserrat"
+                      >
+                        <Download className="w-4 h-4" />
+                        <span>Download Excel Report</span>
+                      </a>
+                    ) : (
+                      <button
+                        disabled
+                        className="w-full py-2.5 rounded-none text-xs font-semibold bg-slate-200 text-slate-500 border border-slate-300 cursor-not-allowed uppercase font-montserrat"
+                      >
+                        Download Unavailable
+                      </button>
+                    )}
                   </div>
-
-                  {downloadUrl ? (
-                    <a
-                      href={downloadUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600 hover:text-white border border-indigo-500/40 transition-all text-center"
-                    >
-                      <Download className="w-4 h-4" />
-                      Download Excel Report
-                    </a>
-                  ) : (
-                    <button
-                      disabled
-                      className="w-full py-2 rounded-xl text-xs font-semibold bg-slate-950 text-slate-600 border border-slate-900 cursor-not-allowed"
-                    >
-                      Download Unavailable
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import {
   fetchDailyAttendance,
   saveBulkAttendance,
@@ -21,6 +23,11 @@ import {
   RefreshCw,
   Download,
   Calendar,
+  LogOut,
+  Globe,
+  CheckCircle,
+  XCircle,
+  X
 } from 'lucide-react';
 
 import AttendanceSummaryCards from '../../components/attendance/AttendanceSummaryCards';
@@ -28,13 +35,13 @@ import AttendanceTable from '../../components/attendance/AttendanceTable';
 import AttendanceAnalytics from '../../components/attendance/AttendanceAnalytics';
 import AttendanceExportList from '../../components/attendance/AttendanceExportList';
 import AttendanceSkeleton from '../../components/attendance/AttendanceSkeleton';
-import AttendanceEmptyState from '../../components/attendance/AttendanceEmptyState';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
-import Button from '../../components/common/Button';
 import { formatFriendlyDate, getCurrentYYYYMM } from '../../utils/formatDate';
 
 export const AdminAttendancePage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const {
     dailyAttendance,
@@ -55,6 +62,11 @@ export const AdminAttendancePage = () => {
   const [selectedMonth, setSelectedMonth] = useState(getCurrentYYYYMM());
   const [confirmModal, setConfirmModal] = useState({ open: false, type: null, title: '', message: '', action: null });
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   // Show auto-dismiss notification
   const showToast = (message, type = 'success') => {
@@ -138,7 +150,7 @@ export const AdminAttendancePage = () => {
         open: true,
         type: 'unmarked_warning',
         title: 'Unmarked Employees Warning',
-        message: `${unmarkedCount} employee(s) do not have a status selected for ${selectedSession} session. Do you want to save attendance for the marked employees?`,
+        message: `${unmarkedCount} employee(s) do not have a status selected for ${selectedSession} session. Save for marked employees?`,
         action: executeSave,
       });
     } else {
@@ -152,7 +164,7 @@ export const AdminAttendancePage = () => {
       open: true,
       type: 'export_confirm',
       title: `Export Report for ${monthStr}`,
-      message: `Generating this report will compile attendance data, export an Excel file, and upload it securely. Proceed?`,
+      message: `Generating this report will compile attendance data and generate an Excel report. Proceed?`,
       action: () => {
         dispatch(exportMonthlyReport(monthStr))
           .unwrap()
@@ -168,157 +180,232 @@ export const AdminAttendancePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 space-y-6 selection:bg-indigo-500 selection:text-white">
-      <div className="max-w-7xl mx-auto space-y-6">
-        
+    <div className="min-h-screen flex flex-col justify-between relative bg-slate-100 font-montserrat selection:bg-[#0562ff] selection:text-white">
+
+      {/* Faint diagonal-panel background matching light enterprise sign-in aesthetic */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+          <rect width="1600" height="900" fill="#f4f5f7" />
+          <polygon points="0,0 650,0 250,900 0,900" fill="#eceef1" />
+          <polygon points="700,0 1000,0 500,900 300,900" fill="#e6e9ed" />
+          <polygon points="1600,0 1600,300 900,900 700,900" fill="#eceef1" />
+        </svg>
+      </div>
+
+      {/* Sticky Top Navbar Header */}
+      <header className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-md sticky top-0 z-50">
+        <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+
+          {/* Left: Brand Logo & Title */}
+          <div className="flex items-center gap-4 sm:gap-6">
+            <Link to="/" className="flex items-center gap-2">
+              <img
+                src="/logo1.webp"
+                alt="TEC THA Workspace Logo"
+                className="h-10 w-auto object-contain max-w-[160px]"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </Link>
+            <div className="h-7 w-px bg-slate-200 hidden sm:block" />
+            <div className="flex items-center gap-3">
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold font-montserrat text-slate-900 leading-tight">
+                  ATTENDANCE MANAGEMENT
+                </h1>
+                <p className="text-xs text-slate-500 font-medium hidden sm:block">
+                  TEC THA Workspace Enterprise Attendance System
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Profile Info & Actions */}
+          <div className="flex items-center gap-2.5 sm:gap-3.5">
+            <Link
+              to="/admin/dashboard"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2 font-montserrat"
+            >
+              <span>User Directory</span>
+            </Link>
+
+            {/* External Website Link */}
+            <a
+              href="https://tectha.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2"
+              title="Official Website"
+            >
+              <Globe className="w-4.5 h-4.5" />
+              <span className="hidden sm:inline">Website</span>
+            </a>
+
+            {/* Sign Out Button */}
+            <button
+              onClick={handleLogout}
+              className="bg-[#0562ff] hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-none shadow-sm transition-all flex items-center gap-2 cursor-pointer font-montserrat"
+            >
+              <LogOut className="w-4.5 h-4.5" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+
+        </div>
+      </header>
+
+      {/* Main Layout Container */}
+      <div className="relative z-10 w-full flex-grow flex flex-col">
+
         {/* Toast Alert Banner */}
         {notification.show && (
-          <div
-            className={`fixed top-5 right-5 z-50 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-md border flex items-center gap-3 transition-all ${
-              notification.type === 'error'
-                ? 'bg-rose-950/90 border-rose-500/50 text-rose-200'
-                : 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200'
-            }`}
-          >
-            <AlertTriangle className="w-5 h-5 shrink-0" />
-            <span className="text-xs font-semibold">{notification.message}</span>
+          <div className="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+            <div
+              className={`p-4 rounded-none border text-sm font-semibold flex items-center justify-between shadow-sm font-montserrat ${notification.type === 'error'
+                  ? 'bg-rose-50 border-rose-200 text-rose-800'
+                  : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                }`}
+            >
+              <div className="flex items-center gap-2.5">
+                {notification.type === 'error' ? (
+                  <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+                ) : (
+                  <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
+                )}
+                <span>{notification.message}</span>
+              </div>
+              <button onClick={() => setNotification({ show: false, message: '', type: 'success' })} className="cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Page Top Header */}
-        <div className="glass-card rounded-3xl p-6 border-indigo-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
-              <CalendarCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-extrabold text-white">Attendance Management</h1>
-                <span className="bg-indigo-950/80 text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-500/30 uppercase">
-                  Admin Workspace
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Mark daily attendance, inspect monthly analytics, and generate export reports.
-              </p>
-            </div>
-          </div>
+        {/* Content Body */}
+        <main className="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-grow">
 
-          {/* Navigation Tabs */}
-          <div className="flex items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 self-start md:self-auto">
+          {/* Navigation Bar / Tabs (Zoho Style) */}
+          <div className="bg-white border border-slate-200 shadow-sm rounded-none p-2 flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setActiveTab('daily')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'daily'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-950'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-none transition-all cursor-pointer font-montserrat ${activeTab === 'daily'
+                  ? 'bg-[#0562ff] text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
             >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Daily Attendance</span>
+              <Calendar className="w-4.5 h-4.5" /> Daily Attendance
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('analytics')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'analytics'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-950'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-none transition-all cursor-pointer font-montserrat ${activeTab === 'analytics'
+                  ? 'bg-[#0562ff] text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
             >
-              <BarChart3 className="w-3.5 h-3.5" />
-              <span>Analytics</span>
+              <BarChart3 className="w-4.5 h-4.5" /> Attendance Analytics
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('exports')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'exports'
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-950'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-none transition-all cursor-pointer font-montserrat ${activeTab === 'exports'
+                  ? 'bg-[#0562ff] text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
             >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>Export Reports</span>
+              <FileSpreadsheet className="w-4.5 h-4.5" /> Monthly Export Reports
             </button>
           </div>
-        </div>
 
-        {/* Tab 1: Daily Attendance Management */}
-        {activeTab === 'daily' && (
-          <div className="space-y-6">
-            {/* Top Metric Cards */}
-            <AttendanceSummaryCards
-              employees={dailyAttendance.employees || []}
-              session={selectedSession}
-            />
-
-            {/* Attendance Table */}
-            {loading ? (
-              <AttendanceSkeleton count={6} />
-            ) : (
-              <AttendanceTable
+          {/* Tab 1: Daily Attendance Management */}
+          {activeTab === 'daily' && (
+            <div className="space-y-6">
+              {/* Top Metric Cards */}
+              <AttendanceSummaryCards
                 employees={dailyAttendance.employees || []}
-                selectedDate={selectedDate}
-                onDateChange={(date) => dispatch(setSelectedDate(date))}
-                activeSession={selectedSession}
-                onSessionChange={(session) => dispatch(setSelectedSession(session))}
-                onStatusChange={handleStatusChange}
-                onMarkAllPresent={handleMarkAllPresent}
-                onSaveAttendance={handleSaveAttendance}
-                saving={saving}
-                loading={loading}
-                hasUnsavedChanges={hasUnsavedChanges}
+                session={selectedSession}
               />
-            )}
-          </div>
-        )}
 
-        {/* Tab 2: Monthly & Department Analytics */}
-        {activeTab === 'analytics' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-semibold text-slate-300">Select Analytics Month:</label>
-                <input
-                  type="month"
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="bg-slate-950 text-xs font-bold text-white border border-slate-700 rounded-xl px-3 py-1.5 outline-none focus:border-indigo-500"
+              {/* Attendance Table */}
+              {loading ? (
+                <AttendanceSkeleton count={6} />
+              ) : (
+                <AttendanceTable
+                  employees={dailyAttendance.employees || []}
+                  selectedDate={selectedDate}
+                  onDateChange={(date) => dispatch(setSelectedDate(date))}
+                  activeSession={selectedSession}
+                  onSessionChange={(session) => dispatch(setSelectedSession(session))}
+                  onStatusChange={handleStatusChange}
+                  onMarkAllPresent={handleMarkAllPresent}
+                  onSaveAttendance={handleSaveAttendance}
+                  saving={saving}
+                  loading={loading}
+                  hasUnsavedChanges={hasUnsavedChanges}
                 />
+              )}
+            </div>
+          )}
+
+          {/* Tab 2: Monthly Analytics */}
+          {activeTab === 'analytics' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-5 rounded-none border border-slate-200 shadow-sm font-montserrat">
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-bold text-slate-800 uppercase tracking-wider">Select Month:</label>
+                  <input
+                    type="month"
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="bg-slate-50 text-sm font-bold text-slate-900 border border-slate-300 rounded-none px-3.5 py-2 outline-none focus:border-[#0562ff] focus:ring-1 focus:ring-[#0562ff] font-montserrat"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleTriggerExport(selectedMonth)}
+                  disabled={exportLoading}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-none bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer font-montserrat uppercase tracking-wider disabled:opacity-50"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>{exportLoading ? 'Generating Export...' : 'Export Monthly Excel'}</span>
+                </button>
               </div>
 
-              <Button
-                onClick={() => handleTriggerExport(selectedMonth)}
-                variant="primary"
-                size="sm"
-                icon={Download}
-                disabled={exportLoading}
-                className="text-xs bg-emerald-600 hover:bg-emerald-500 font-bold"
-              >
-                {exportLoading ? 'Exporting...' : 'Export Month Excel'}
-              </Button>
+              <AttendanceAnalytics
+                analytics={analytics}
+                departmentAnalytics={departmentAnalytics}
+                loading={analyticsLoading}
+              />
             </div>
+          )}
 
-            <AttendanceAnalytics
-              analytics={analytics}
-              departmentAnalytics={departmentAnalytics}
-              loading={analyticsLoading}
+          {/* Tab 3: Export History */}
+          {activeTab === 'exports' && (
+            <AttendanceExportList
+              exports={exports}
+              loading={exportLoading}
+              onExportTrigger={() => handleTriggerExport(selectedMonth)}
             />
-          </div>
-        )}
+          )}
 
-        {/* Tab 3: Export History & Reports */}
-        {activeTab === 'exports' && (
-          <AttendanceExportList
-            exports={exports}
-            loading={exportLoading}
-            onExportTrigger={() => handleTriggerExport(selectedMonth)}
-          />
-        )}
+        </main>
+
+        {/* Footer Bar */}
+        <footer className="relative z-10 w-full text-center py-5 text-sm text-slate-500 font-medium space-y-1 border-t border-slate-200/80 bg-white/60 backdrop-blur-xs mt-auto">
+          <div>
+            © {new Date().getFullYear()}, TEC THA Workspace Pvt. Ltd. All Rights Reserved.
+          </div>
+          <div>
+            <a href="mailto:support@tectha.com" className="hover:text-[#0562ff] transition-colors font-semibold">
+              support@tectha.com
+            </a>
+          </div>
+        </footer>
 
       </div>
 
