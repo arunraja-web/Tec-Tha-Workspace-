@@ -14,6 +14,10 @@ import AdminGroupsPage from '../pages/admin/Groups';
 import FounderGroupsPage from '../pages/founder/Groups';
 import EmployeeMyGroupsPage from '../pages/employee/MyGroups';
 
+import AdminTasksPage from '../pages/admin/Tasks';
+import FounderTasksPage from '../pages/founder/Tasks';
+import EmployeeMyTasksPage from '../pages/employee/MyTasks';
+
 import ChatPage from '../pages/chat/Chat';
 
 import ProtectedRoute from './ProtectedRoute';
@@ -124,6 +128,40 @@ export const AppRoutes = () => {
           <ProtectedRoute>
             <RoleRoute allowedRoles={[ROLES.EMPLOYEE]}>
               <EmployeeMyGroupsPage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Task Management Module Routes */}
+      <Route
+        path="/admin/tasks"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.ADMIN]}>
+              <AdminTasksPage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/founder/tasks"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.FOUNDER]}>
+              <FounderTasksPage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/employee/tasks"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.EMPLOYEE]}>
+              <EmployeeMyTasksPage />
             </RoleRoute>
           </ProtectedRoute>
         }

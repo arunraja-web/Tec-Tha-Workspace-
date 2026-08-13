@@ -9,7 +9,8 @@ import {
   Calendar,
   CalendarCheck2,
   MessageSquare,
-  Users
+  Users,
+  ListTodo
 } from 'lucide-react';
 import MeetingSection from '../../components/meetings/MeetingSection';
 import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
@@ -83,6 +84,16 @@ export const EmployeeDashboard = () => {
                 <div className="text-xs text-slate-500 font-medium max-w-[150px] truncate">{user?.email || 'employee@tectha.com'}</div>
               </div>
             </div>
+
+            {/* My Tasks Link */}
+            <Link
+              to="/employee/tasks"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2 font-montserrat"
+              title="My Tasks"
+            >
+              <ListTodo className="w-4.5 h-4.5 text-[#0562ff]" />
+              <span className="hidden sm:inline">My Tasks</span>
+            </Link>
 
             {/* Chat Navigation Link */}
             <Link

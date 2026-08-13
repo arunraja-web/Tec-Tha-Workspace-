@@ -27,7 +27,7 @@ export const ChatLayout = ({
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
 
   return (
-    <div className="w-full h-full flex flex-row overflow-hidden bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl shadow-sm">
+    <div className="w-full h-full flex flex-row overflow-hidden bg-[#111b21] border border-neutral-800 rounded-2xl shadow-xl">
       {/* Sidebar Panel - Conversation List */}
       <div
         className={`w-full md:w-auto h-full ${

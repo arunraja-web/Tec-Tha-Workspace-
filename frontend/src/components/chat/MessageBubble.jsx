@@ -82,8 +82,8 @@ export const MessageBubble = ({
           className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm leading-relaxed shadow-xs relative break-words transition-all ${
             isOwn
               ? 'bg-[#005c4b] text-[#e9edef] rounded-tr-xs shadow-sm'
-              : 'bg-white dark:bg-[#202c33] text-slate-900 dark:text-[#e9edef] border border-slate-200/60 dark:border-none rounded-tl-xs shadow-xs'
-          } ${isDeleted ? 'italic text-slate-400 bg-slate-100 dark:bg-neutral-900/60 border-dashed border-slate-300 dark:border-neutral-800' : ''}`}
+              : 'bg-[#202c33] text-[#e9edef] border-none rounded-tl-xs shadow-xs'
+          } ${isDeleted ? 'italic text-[#8696a0] bg-[#111b21] border-dashed border-neutral-700' : ''}`}
         >
           {/* Colored Sender Name for Group Chats (Opponent Messages) */}
           {showSender && !isOwn && !isDeleted && (
@@ -97,7 +97,7 @@ export const MessageBubble = ({
 
           {/* Main Content */}
           {isDeleted ? (
-            <span className="text-slate-400 dark:text-neutral-500">This message was deleted.</span>
+            <span className="text-[#8696a0]">This message was deleted.</span>
           ) : (
             <>
               {message.content && <div className="whitespace-pre-wrap">{message.content}</div>}
@@ -111,9 +111,7 @@ export const MessageBubble = ({
 
           {/* Footer Metadata (Timestamp + Edited + Read Checkmarks) */}
           <div
-            className={`flex items-center justify-end gap-1.5 mt-1 text-[10px] select-none ${
-              isOwn ? 'text-[#8696a0] dark:text-[#8696a0]' : 'text-slate-400 dark:text-[#8696a0]'
-            }`}
+            className="flex items-center justify-end gap-1.5 mt-1 text-[10px] select-none text-[#8696a0]"
           >
             {isEdited && !isDeleted && (
               <span className="italic opacity-80">(edited)</span>

@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-<<<<<<< HEAD
 import {
   Crown,
   LogOut,
   Globe,
-  Users
+  Users,
+  MessageSquare,
+  ListTodo
 } from 'lucide-react';
-=======
-import { Crown, LogOut, ShieldCheck, Activity, Users, TrendingUp, Sparkles, MessageSquare } from 'lucide-react';
-import Button from '../../components/common/Button';
->>>>>>> 1495c23ad75f8be06f47acc332cfcbac22b99589
 import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 
@@ -71,7 +68,6 @@ export const FounderDashboard = () => {
             </div>
           </div>
 
-<<<<<<< HEAD
           {/* Right: Profile Info & Actions */}
           <div className="flex items-center gap-2.5 sm:gap-3.5">
             {/* User Profile Pill */}
@@ -84,6 +80,26 @@ export const FounderDashboard = () => {
                 <div className="text-xs text-slate-500 font-medium max-w-[150px] truncate">{user?.email || 'founder@tectha.com'}</div>
               </div>
             </div>
+
+            {/* Executive Tasks Link */}
+            <Link
+              to="/founder/tasks"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2 font-montserrat"
+              title="Executive Tasks"
+            >
+              <ListTodo className="w-4.5 h-4.5 text-[#0562ff]" />
+              <span className="hidden sm:inline">Tasks</span>
+            </Link>
+
+            {/* Chat Navigation Link */}
+            <Link
+              to="/chat"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2 font-montserrat"
+              title="Real-time Chat"
+            >
+              <MessageSquare className="w-4.5 h-4.5 text-[#0562ff]" />
+              <span className="hidden sm:inline">Chat</span>
+            </Link>
 
             {/* Groups Link */}
             <Link
@@ -114,21 +130,6 @@ export const FounderDashboard = () => {
               <LogOut className="w-4.5 h-4.5" />
               <span>Sign Out</span>
             </button>
-=======
-          <div className="flex items-center gap-3">
-            <Button to="/chat" variant="primary" size="sm" icon={MessageSquare}>
-              Chat
-            </Button>
-            <Button to="/founder/groups" variant="outline" size="sm">
-              Groups
-            </Button>
-            <Button to="/" variant="outline" size="sm">
-              View Public Website
-            </Button>
-            <Button onClick={handleLogout} variant="secondary" size="sm" icon={LogOut}>
-              Sign Out
-            </Button>
->>>>>>> 1495c23ad75f8be06f47acc332cfcbac22b99589
           </div>
 
         </div>

@@ -56,14 +56,14 @@ export const ChatHeader = ({
   ).length;
 
   return (
-    <div className="relative flex items-center justify-between px-4 py-3 bg-white dark:bg-neutral-900 border-b border-slate-200 dark:border-neutral-800 shrink-0 select-none">
+    <div className="relative flex items-center justify-between px-4 py-3 bg-[#202c33] border-b border-neutral-700/60 shrink-0 select-none">
       <div className="flex items-center gap-3">
         {/* Mobile Back Button */}
         {onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="md:hidden p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors cursor-pointer"
+            className="md:hidden p-1.5 text-[#8696a0] hover:text-[#e9edef] hover:bg-[#2a3942] rounded-lg transition-colors cursor-pointer"
             title="Back to conversation list"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -79,7 +79,7 @@ export const ChatHeader = ({
         >
           {/* Avatar */}
           <div className="relative shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0562ff] to-indigo-700 text-white flex items-center justify-center font-bold text-sm shadow-xs transition-transform group-hover:scale-105">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#005c4b] to-[#008069] text-white flex items-center justify-center font-bold text-sm shadow-xs transition-transform group-hover:scale-105">
               {isGroup ? <Users className="w-5 h-5" /> : title.charAt(0).toUpperCase()}
             </div>
             {!isGroup && (
@@ -92,11 +92,11 @@ export const ChatHeader = ({
           {/* Title & Details */}
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white leading-tight group-hover:text-[#0562ff] transition-colors">
+              <h2 className="text-sm font-bold text-[#e9edef] leading-tight group-hover:text-[#25d366] transition-colors">
                 {title}
               </h2>
               {isGroup && (
-                <span className="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-indigo-950/60 text-[#0562ff] dark:text-indigo-400 text-[10px] font-bold border border-[#0562ff]/20">
+                <span className="px-1.5 py-0.5 rounded bg-[#005c4b]/30 text-[#25d366] text-[10px] font-bold border border-[#005c4b]/50">
                   Group
                 </span>
               )}
