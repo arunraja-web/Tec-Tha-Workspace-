@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react';
 import { X, Calendar } from 'lucide-react';
 
+/**
+ * MeetingModal Component - Light Enterprise Theme (rounded-none, font-montserrat)
+ */
 export const MeetingModal = ({ isOpen, onClose, title, children }) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -23,32 +26,32 @@ export const MeetingModal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs font-montserrat animate-in fade-in duration-200">
       <div
-        className="w-full max-w-lg glass-card rounded-3xl p-6 border-slate-800 shadow-2xl space-y-5 animate-scale-up"
+        className="w-full max-w-lg bg-white border border-slate-200 rounded-none p-6 sm:p-7 shadow-2xl space-y-5 relative font-montserrat"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-950/80 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+            <div className="w-10 h-10 rounded-none bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0562ff] shrink-0">
               <Calendar className="w-5 h-5" />
             </div>
-            <h2 className="text-xl font-bold text-white tracking-tight">
+            <h2 className="text-xl font-bold font-montserrat text-slate-900 tracking-tight">
               {title}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="text-slate-400 hover:text-slate-600 cursor-pointer p-1"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="pt-2">
+        {/* Form Content */}
+        <div className="pt-1 font-montserrat">
           {children}
         </div>
       </div>

@@ -1,27 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import {
-  ShieldAlert,
   LogOut,
   Globe,
   Users
 } from 'lucide-react';
 import UserManagement from '../../components/admin/UserManagement';
 import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
   const handleLogout = () => {
+    setShowSignOutConfirm(true);
+  };
+
+  const confirmSignOut = () => {
     logout();
     navigate('/');
   };
 
   return (
     <div className="min-h-screen flex flex-col justify-between relative bg-slate-100 font-montserrat selection:bg-[#0562ff] selection:text-white">
-
+      
       {/* Faint diagonal-panel background matching light enterprise sign-in aesthetic */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
@@ -35,7 +40,7 @@ export const AdminDashboard = () => {
       {/* Sticky Top Navbar Header */}
       <header className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-md sticky top-0 z-50">
         <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-
+          
           {/* Left: Brand Logo & Title */}
           <div className="flex items-center gap-4 sm:gap-6">
             <Link to="/" className="flex items-center gap-2">
@@ -99,7 +104,7 @@ export const AdminDashboard = () => {
             {/* Sign Out Button */}
             <button
               onClick={handleLogout}
-              className="bg-[#0562ff] hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-none shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+              className="bg-[#0562ff] hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-none shadow-sm transition-all flex items-center gap-2 cursor-pointer font-montserrat"
             >
               <LogOut className="w-4.5 h-4.5" />
               <span>Sign Out</span>
@@ -111,10 +116,10 @@ export const AdminDashboard = () => {
 
       {/* Main Layout Container */}
       <div className="relative z-10 w-full flex-grow flex flex-col">
-
+        
         {/* Content Body */}
         <main className="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-grow">
-          {/* Attendance Summary Widget from friend's attendance code */}
+          {/* Attendance Summary Widget */}
           <AttendanceSummaryWidget role="admin" />
 
           {/* User Controls & Directory */}
@@ -134,6 +139,19 @@ export const AdminDashboard = () => {
         </footer>
 
       </div>
+
+      {/* Sign Out Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showSignOutConfirm}
+        title="Confirm Sign Out"
+        message="Are you sure you want to sign out of TEC THA Workspace? You will need to sign in again to access your dashboard."
+        confirmLabel="Sign Out"
+        cancelLabel="Cancel"
+        variant="rose"
+        icon={LogOut}
+        onConfirm={confirmSignOut}
+        onCancel={() => setShowSignOutConfirm(false)}
+      />
 
     </div>
   );

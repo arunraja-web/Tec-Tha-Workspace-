@@ -1,7 +1,9 @@
 import React from 'react';
-import { ExternalLink, Calendar, Edit3, Power, CheckCircle, Clock } from 'lucide-react';
-import Button from '../common/Button';
+import { ExternalLink, Calendar, Edit3, Power, Clock } from 'lucide-react';
 
+/**
+ * MeetingCard Component - Light Enterprise Theme (rounded-none, font-montserrat)
+ */
 export const MeetingCard = ({ meeting, currentUser, onEdit, onDeactivate }) => {
   const {
     id,
@@ -38,85 +40,76 @@ export const MeetingCard = ({ meeting, currentUser, onEdit, onDeactivate }) => {
     : 'Recently';
 
   return (
-    <div className="glass-card rounded-2xl p-6 border-slate-800 flex flex-col justify-between space-y-4 hover:border-slate-700 transition-all duration-200 shadow-lg">
-      <div className="space-y-3">
-        {/* Header & Status Pill */}
+    <div className="bg-white rounded-none p-5 sm:p-6 border border-slate-200 shadow-sm flex flex-col justify-between space-y-4 font-montserrat hover:border-slate-300 transition-all">
+      <div className="space-y-2.5">
+        {/* Header & Status Badge */}
         <div className="flex items-start justify-between gap-3">
-          <h3 className="text-lg font-bold text-white tracking-tight line-clamp-2">
+          <h3 className="text-base font-bold text-slate-900 leading-snug font-montserrat line-clamp-2">
             {title}
           </h3>
           <span
-            className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${
+            className={`shrink-0 text-xs font-bold px-2.5 py-1 rounded-none border uppercase tracking-wider ${
               isActive
-                ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/30'
-                : 'bg-rose-950/80 text-rose-300 border-rose-500/30'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : 'bg-rose-50 text-rose-700 border-rose-200'
             }`}
           >
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                isActive ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'
-              }`}
-            />
             {isActive ? 'Active' : 'Inactive'}
           </span>
         </div>
 
         {/* Description */}
         {description ? (
-          <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed">
+          <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed font-medium">
             {description}
           </p>
         ) : (
-          <p className="text-xs text-slate-500 italic">No description provided</p>
+          <p className="text-xs text-slate-400 italic">No description provided</p>
         )}
       </div>
 
-      <div className="pt-3 border-t border-slate-800/80 space-y-4">
+      <div className="pt-3 border-t border-slate-100 space-y-4 font-montserrat">
         {/* Creation Info & Link Preview */}
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 font-medium">
           <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-indigo-400" />
+            <Clock className="w-3.5 h-3.5 text-[#0562ff]" />
             <span>Created {formattedDate}</span>
           </div>
-          <div className="flex items-center gap-1 text-slate-400 truncate max-w-[200px]" title={meetingLink}>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <div className="flex items-center gap-1 text-slate-500 truncate max-w-[180px]" title={meetingLink}>
+            <ExternalLink className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">{meetingLink}</span>
           </div>
         </div>
 
         {/* Actions Bar */}
-        <div className="flex items-center justify-between gap-2 pt-1">
-          <Button
+        <div className="flex items-center justify-between gap-2 pt-1 font-montserrat">
+          <button
+            type="button"
             onClick={handleJoin}
-            variant="primary"
-            size="sm"
-            icon={ExternalLink}
-            iconPosition="right"
-            className="bg-indigo-600 hover:bg-indigo-500 dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-500 text-xs font-bold"
+            className="px-4 py-2 rounded-none bg-[#0562ff] hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5 cursor-pointer font-montserrat uppercase tracking-wider"
           >
-            Join Meeting
-          </Button>
+            <span>Join Meeting</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </button>
 
           {canModify && (
             <div className="flex items-center gap-2">
-              <Button
+              <button
+                type="button"
                 onClick={() => onEdit(meeting)}
-                variant="outline"
-                size="sm"
-                icon={Edit3}
-                className="text-xs border-slate-700 hover:bg-slate-800 text-slate-200"
+                className="px-3 py-2 rounded-none bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors cursor-pointer font-montserrat uppercase tracking-wider flex items-center gap-1"
               >
-                Edit
-              </Button>
-              <Button
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Edit</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => onDeactivate(meeting)}
-                variant="secondary"
-                size="sm"
-                icon={Power}
-                className="text-xs bg-rose-950/40 text-rose-300 hover:bg-rose-900/60 border border-rose-800/40"
+                className="px-3 py-2 rounded-none bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold text-xs transition-colors cursor-pointer font-montserrat uppercase tracking-wider flex items-center gap-1"
               >
-                {isActive ? 'Deactivate' : 'Activate'}
-              </Button>
+                <Power className="w-3.5 h-3.5" />
+                <span>{isActive ? 'Deactivate' : 'Activate'}</span>
+              </button>
             </div>
           )}
         </div>

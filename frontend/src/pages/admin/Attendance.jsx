@@ -64,8 +64,18 @@ export const AdminAttendancePage = () => {
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    setConfirmModal({
+      open: true,
+      type: 'signout_confirm',
+      variant: 'rose',
+      icon: LogOut,
+      title: 'Confirm Sign Out',
+      message: 'Are you sure you want to sign out of TEC THA Workspace? You will need to sign in again to access your dashboard.',
+      action: () => {
+        logout();
+        navigate('/');
+      },
+    });
   };
 
   // Show auto-dismiss notification
