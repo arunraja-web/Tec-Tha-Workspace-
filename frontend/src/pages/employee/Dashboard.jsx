@@ -130,10 +130,6 @@ export const EmployeeDashboard = () => {
 
         </div>
       </header>
-          </div>
-
-        </div>
-      </header>
 
       {/* Main Layout Container */}
       <div className="relative z-10 w-full flex-grow flex flex-col">
