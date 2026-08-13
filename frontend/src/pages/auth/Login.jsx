@@ -44,7 +44,7 @@ export const Login = () => {
       setPassword('Admin@123');
     } else if (type === 'employee') {
       setEmail('test@tectha.com');
-      setPassword('123456');
+      setPassword('12345678');
     }
   };
 

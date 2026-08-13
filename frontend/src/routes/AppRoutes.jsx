@@ -5,6 +5,11 @@ import Login from '../pages/auth/Login';
 import FounderDashboard from '../pages/founder/Dashboard';
 import AdminDashboard from '../pages/admin/Dashboard';
 import EmployeeDashboard from '../pages/employee/Dashboard';
+
+import AdminAttendancePage from '../pages/admin/Attendance';
+import FounderAttendanceAnalyticsPage from '../pages/founder/AttendanceAnalytics';
+import MyAttendancePage from '../pages/employee/MyAttendance';
+
 import ProtectedRoute from './ProtectedRoute';
 import RoleRoute from './RoleRoute';
 import { ROLES } from '../constants/roles';
@@ -45,6 +50,40 @@ export const AppRoutes = () => {
           <ProtectedRoute>
             <RoleRoute allowedRoles={[ROLES.EMPLOYEE]}>
               <EmployeeDashboard />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Attendance Module Routes */}
+      <Route
+        path="/admin/attendance"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.ADMIN]}>
+              <AdminAttendancePage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/founder/attendance"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.FOUNDER]}>
+              <FounderAttendanceAnalyticsPage />
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/employee/attendance"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allowedRoles={[ROLES.EMPLOYEE]}>
+              <MyAttendancePage />
             </RoleRoute>
           </ProtectedRoute>
         }

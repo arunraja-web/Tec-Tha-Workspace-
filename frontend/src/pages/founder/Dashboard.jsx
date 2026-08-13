@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Crown, LogOut, ShieldCheck, Activity, Users, TrendingUp, Sparkles } from 'lucide-react';
 import Button from '../../components/common/Button';
+import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
 
 export const FounderDashboard = () => {
   const { user, logout } = useAuth();
@@ -45,6 +46,9 @@ export const FounderDashboard = () => {
             </Button>
           </div>
         </div>
+
+        {/* Executive Attendance Widget */}
+        <AttendanceSummaryWidget role="founder" />
 
         {/* Dashboard Preview Banner */}
         <div className="glass-card rounded-2xl p-6 border-slate-800 space-y-4">

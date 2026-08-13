@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { ShieldAlert, LogOut, ShieldCheck, Users, Clock, FileCheck } from 'lucide-react';
 import Button from '../../components/common/Button';
+import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -45,6 +46,9 @@ export const AdminDashboard = () => {
             </Button>
           </div>
         </div>
+
+        {/* Attendance Summary Widget */}
+        <AttendanceSummaryWidget role="admin" />
 
         {/* Dashboard Preview Banner */}
         <div className="glass-card rounded-2xl p-6 border-slate-800 space-y-4">

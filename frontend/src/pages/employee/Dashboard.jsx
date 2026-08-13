@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { UserCheck, LogOut, ShieldCheck, CheckSquare, Calendar, MessageSquare } from 'lucide-react';
 import Button from '../../components/common/Button';
 import MeetingSection from '../../components/meetings/MeetingSection';
+import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
 
 export const EmployeeDashboard = () => {
   const { user, logout } = useAuth();
@@ -46,6 +47,9 @@ export const EmployeeDashboard = () => {
             </Button>
           </div>
         </div>
+
+        {/* Employee Attendance Summary Widget */}
+        <AttendanceSummaryWidget role="employee" />
 
         {/* Dashboard Preview Banner */}
         <div className="glass-card rounded-2xl p-6 border-slate-800 space-y-4">
