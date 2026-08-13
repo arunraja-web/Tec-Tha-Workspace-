@@ -24,7 +24,7 @@ export const EmployeeDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col justify-between relative bg-slate-100 font-montserrat selection:bg-[#0562ff] selection:text-white">
-      
+
       {/* Faint diagonal-panel background matching light enterprise sign-in aesthetic */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
@@ -38,7 +38,7 @@ export const EmployeeDashboard = () => {
       {/* Sticky Top Navbar Header */}
       <header className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-md sticky top-0 z-50">
         <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-          
+
           {/* Left: Brand Logo & Title */}
           <div className="flex items-center gap-4 sm:gap-6">
             <Link to="/" className="flex items-center gap-2">
@@ -113,10 +113,10 @@ export const EmployeeDashboard = () => {
 
       {/* Main Layout Container */}
       <div className="relative z-10 w-full flex-grow flex flex-col">
-        
+
         {/* Content Body */}
         <main className="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 flex-grow">
-          
+
           {/* Section 1: Employee Attendance Summary Widget */}
           <AttendanceSummaryWidget role="employee" />
 

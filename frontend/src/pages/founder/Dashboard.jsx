@@ -38,6 +38,9 @@ export const FounderDashboard = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <Button to="/founder/groups" variant="outline" size="sm">
+              Groups
+            </Button>
             <Button to="/" variant="outline" size="sm">
               View Public Website
             </Button>
