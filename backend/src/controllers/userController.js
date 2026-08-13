@@ -24,6 +24,36 @@ const getUsers = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Get active colleagues for starting a direct chat
+ * @route   GET /api/users/directory
+ * @access  Private
+ */
+const getChatDirectory = asyncHandler(async (req, res) => {
+  const search = String(req.query.search || '').trim().slice(0, 100);
+  const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 50, 1), 100);
+  const filter = {
+    _id: { $ne: req.user._id },
+    isActive: true,
+    deletedAt: null
+  };
+
+  if (search) {
+    const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    filter.$or = [
+      { name: { $regex: escapedSearch, $options: 'i' } },
+      { email: { $regex: escapedSearch, $options: 'i' } }
+    ];
+  }
+
+  const users = await User.find(filter)
+    .select('name email role')
+    .sort({ name: 1 })
+    .limit(limit);
+
+  return sendSuccess(res, 200, 'Chat directory retrieved successfully', { users });
+});
+
+/**
  * @desc    Get single user by ID (Admin only)
  * @route   GET /api/users/:id
  * @access  Private/Admin
@@ -102,6 +132,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 module.exports = {
   createUser,
   getUsers,
+  getChatDirectory,
   getUserById,
   updateUser,
   updateUserStatus,

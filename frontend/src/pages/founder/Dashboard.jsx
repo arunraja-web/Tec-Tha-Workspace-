@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+<<<<<<< HEAD
 import {
   Crown,
   LogOut,
   Globe,
   Users
 } from 'lucide-react';
+=======
+import { Crown, LogOut, ShieldCheck, Activity, Users, TrendingUp, Sparkles, MessageSquare } from 'lucide-react';
+import Button from '../../components/common/Button';
+>>>>>>> 1495c23ad75f8be06f47acc332cfcbac22b99589
 import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 
@@ -66,6 +71,7 @@ export const FounderDashboard = () => {
             </div>
           </div>
 
+<<<<<<< HEAD
           {/* Right: Profile Info & Actions */}
           <div className="flex items-center gap-2.5 sm:gap-3.5">
             {/* User Profile Pill */}
@@ -108,6 +114,21 @@ export const FounderDashboard = () => {
               <LogOut className="w-4.5 h-4.5" />
               <span>Sign Out</span>
             </button>
+=======
+          <div className="flex items-center gap-3">
+            <Button to="/chat" variant="primary" size="sm" icon={MessageSquare}>
+              Chat
+            </Button>
+            <Button to="/founder/groups" variant="outline" size="sm">
+              Groups
+            </Button>
+            <Button to="/" variant="outline" size="sm">
+              View Public Website
+            </Button>
+            <Button onClick={handleLogout} variant="secondary" size="sm" icon={LogOut}>
+              Sign Out
+            </Button>
+>>>>>>> 1495c23ad75f8be06f47acc332cfcbac22b99589
           </div>
 
         </div>

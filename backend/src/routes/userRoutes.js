@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   createUser,
   getUsers,
+  getChatDirectory,
   getUserById,
   updateUser,
   updateUserStatus,
@@ -22,8 +23,13 @@ const {
   adminResetPasswordRules
 } = require('../validators/userValidator');
 
-// Protect and authorize all routes in this file for Admin role only
+// All user routes require authentication.
 router.use(protect);
+
+// Any workspace member may read this limited directory to begin a direct chat.
+router.get('/directory', getChatDirectory);
+
+// User management remains Admin-only.
 router.use(authorize('admin'));
 
 // Core User Management Endpoints

@@ -14,6 +14,8 @@ import AdminGroupsPage from '../pages/admin/Groups';
 import FounderGroupsPage from '../pages/founder/Groups';
 import EmployeeMyGroupsPage from '../pages/employee/MyGroups';
 
+import ChatPage from '../pages/chat/Chat';
+
 import ProtectedRoute from './ProtectedRoute';
 import RoleRoute from './RoleRoute';
 import { ROLES } from '../constants/roles';
@@ -123,6 +125,16 @@ export const AppRoutes = () => {
             <RoleRoute allowedRoles={[ROLES.EMPLOYEE]}>
               <EmployeeMyGroupsPage />
             </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Real-time Chat Module Route */}
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <ChatPage />
           </ProtectedRoute>
         }
       />

@@ -4,7 +4,8 @@ import { useAuth } from '../../hooks/useAuth';
 import {
   LogOut,
   Globe,
-  Users
+  Users,
+  MessageSquare
 } from 'lucide-react';
 import UserManagement from '../../components/admin/UserManagement';
 import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
@@ -78,6 +79,16 @@ export const AdminDashboard = () => {
                 <div className="text-xs text-slate-500 font-medium max-w-[150px] truncate">{user?.email || 'admin@tectha.com'}</div>
               </div>
             </div>
+
+            {/* Chat Navigation Link */}
+            <Link
+              to="/chat"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2"
+              title="Real-time Chat"
+            >
+              <MessageSquare className="w-4.5 h-4.5 text-[#0562ff]" />
+              <span className="hidden sm:inline">Chat</span>
+            </Link>
 
             {/* Groups Navigation Link */}
             <Link
