@@ -5,20 +5,30 @@ const { Readable } = require('stream');
  * Configure Cloudinary dynamically from environment variables
  */
 const configureCloudinary = () => {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || !apiKey || !apiSecret || cloudName === 'your_cloud_name') {
+    console.error('CLOUDINARY ERROR: Environment variables (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET) are missing or set to defaults.');
+    throw new Error('Cloudinary environment variables are missing or unconfigured');
+  }
+
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
     secure: true
   });
+};
 
-  if (
-    !process.env.CLOUDINARY_CLOUD_NAME ||
-    !process.env.CLOUDINARY_API_KEY ||
-    !process.env.CLOUDINARY_API_SECRET
-  ) {
-    throw new Error('Cloudinary environment variables are missing');
+const cloudinaryUploadError = (message, originalError = null) => {
+  const error = new Error(message);
+  error.statusCode = 502;
+  if (originalError) {
+    error.cloudinaryError = originalError;
   }
+  return error;
 };
 
 /**
@@ -39,24 +49,22 @@ const uploadExcelToCloudinary = (buffer, month, fileName) => {
       {
         folder,
         public_id: fileName.replace(/\.xlsx$/i, ''),
-        resource_type: 'raw',
-        format: 'xlsx',
+        resource_type: 'auto',
         overwrite: true,
         invalidate: true
       },
       (error, result) => {
         if (error) {
-          console.warn(`Cloudinary raw upload warning (${error.message}). Using Data URI fallback.`);
-          const base64Excel = buffer.toString('base64');
-          const dataUrl = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${base64Excel}`;
-          return resolve({
-            publicId: publicIdWithFolder,
-            secureUrl: dataUrl
+          console.error('Cloudinary Excel Upload Failure Details:', {
+            message: error.message,
+            http_code: error.http_code,
+            details: error
           });
+          return reject(cloudinaryUploadError(`Cloudinary Excel upload failed: ${error.message}`, error));
         }
 
         if (!result || !result.secure_url) {
-          return reject(new Error('Cloudinary upload returned invalid response'));
+          return reject(cloudinaryUploadError('Cloudinary Excel upload returned no secure URL'));
         }
 
         return resolve({
@@ -89,9 +97,9 @@ const uploadChatAttachmentToCloudinary = (buffer, fileName, mimetype) => {
     }
 
     const folder = 'company-workspace/chat';
-    const isImage = mimetype.startsWith('image/');
-    const resourceType = isImage ? 'image' : 'raw';
-    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const isImage = mimetype ? mimetype.startsWith('image/') : false;
+    const resourceType = isImage ? 'image' : 'auto';
+    const sanitizedFileName = (fileName || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
     const publicId = `${Date.now()}_${sanitizedFileName}`;
 
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -103,32 +111,26 @@ const uploadChatAttachmentToCloudinary = (buffer, fileName, mimetype) => {
       },
       (error, result) => {
         if (error) {
-          console.warn(`Cloudinary chat upload warning (${error.message}). Using Data URI fallback.`);
-          const base64Data = buffer.toString('base64');
-          const dataUrl = `data:${mimetype};base64,${base64Data}`;
-          return resolve({
-            fileName,
-            originalName: fileName,
-            fileUrl: dataUrl,
-            url: dataUrl,
-            publicId,
-            fileType: isImage ? 'image' : 'file',
-            fileSize: buffer.length
+          console.error('Cloudinary Chat Upload Failure Details:', {
+            message: error.message,
+            http_code: error.http_code,
+            details: error
           });
+          return reject(cloudinaryUploadError(`Cloudinary chat upload failed: ${error.message}`, error));
         }
 
         if (!result || !result.secure_url) {
-          return reject(new Error('Cloudinary upload returned invalid response'));
+          return reject(cloudinaryUploadError('Cloudinary chat upload returned no secure URL'));
         }
 
         return resolve({
-          fileName,
-          originalName: fileName,
+          fileName: fileName || 'file',
+          originalName: fileName || 'file',
           fileUrl: result.secure_url,
           url: result.secure_url,
           publicId: result.public_id,
           fileType: isImage ? 'image' : 'file',
-          fileSize: buffer.length
+          fileSize: buffer ? buffer.length : 0
         });
       }
     );
@@ -152,46 +154,43 @@ const uploadTaskAttachmentToCloudinary = (buffer, fileName, mimetype) => {
     try {
       configureCloudinary();
     } catch (err) {
-      // Fallback response if environment variables are not set during local testing
-      if (process.env.NODE_ENV === 'test') {
-        const ext = fileName.split('.').pop().toLowerCase();
-        const mockPublicId = `company-workspace/tasks/${Date.now()}_${fileName}`;
-        return resolve({
-          fileName,
-          fileUrl: `https://res.cloudinary.com/demo/image/upload/v1/${mockPublicId}`,
-          publicId: mockPublicId,
-          fileType: mimetype.startsWith('image/') ? 'image' : ext,
-          fileSize: buffer ? buffer.length : 0
-        });
-      }
       return reject(err);
     }
 
+    const ext = fileName ? fileName.split('.').pop().toLowerCase() : 'file';
+    const isImage = mimetype ? mimetype.startsWith('image/') : false;
     const folder = 'company-workspace/tasks';
-    const isImage = mimetype.startsWith('image/');
-    const resourceType = isImage ? 'image' : 'raw';
-    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const publicId = `${Date.now()}_${sanitizedFileName}`;
+    const resourceType = isImage ? 'image' : 'auto';
+    const sanitizedFileName = (fileName || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+    if (!buffer) {
+      return reject(cloudinaryUploadError('Cannot upload an empty task attachment'));
+    }
 
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
-        public_id: publicId,
+        public_id: `${Date.now()}_${sanitizedFileName}`,
         resource_type: resourceType,
         overwrite: true
       },
       (error, result) => {
-        if (error) {
-          return reject(new Error(`Cloudinary upload failed: ${error.message}`));
+        if (error || !result || !result.secure_url) {
+          if (error) {
+            console.error('Cloudinary Task Attachment Upload Failure Details:', {
+              message: error.message,
+              http_code: error.http_code,
+              name: error.name,
+              details: error
+            });
+          }
+          return reject(cloudinaryUploadError(
+            `Cloudinary task attachment upload failed: ${error ? error.message : 'no secure URL returned'}`,
+            error
+          ));
         }
 
-        if (!result || !result.secure_url) {
-          return reject(new Error('Cloudinary upload returned invalid response'));
-        }
-
-        const ext = fileName.split('.').pop().toLowerCase();
         return resolve({
-          fileName,
+          fileName: fileName || 'file',
           fileUrl: result.secure_url,
           publicId: result.public_id,
           fileType: isImage ? 'image' : ext,
@@ -225,45 +224,42 @@ const uploadWorkReportAttachmentToCloudinary = (buffer, fileName, mimetype, year
     try {
       configureCloudinary();
     } catch (err) {
-      if (process.env.NODE_ENV === 'test') {
-        const ext = fileName.split('.').pop().toLowerCase();
-        const mockPublicId = `company-workspace/work-reports/${year}/${month}/${Date.now()}_${fileName}`;
-        return resolve({
-          fileName,
-          fileUrl: `https://res.cloudinary.com/demo/image/upload/v1/${mockPublicId}`,
-          publicId: mockPublicId,
-          fileType: mimetype.startsWith('image/') ? 'image' : ext,
-          fileSize: buffer ? buffer.length : 0
-        });
-      }
       return reject(err);
     }
 
+    const ext = fileName ? fileName.split('.').pop().toLowerCase() : 'file';
+    const isImage = mimetype ? mimetype.startsWith('image/') : false;
     const folder = `company-workspace/work-reports/${year}/${month}`;
-    const isImage = mimetype.startsWith('image/');
-    const resourceType = isImage ? 'image' : 'raw';
-    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const publicId = `${Date.now()}_${sanitizedFileName}`;
+    const resourceType = isImage ? 'image' : 'auto';
+    const sanitizedFileName = (fileName || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+    if (!buffer) {
+      return reject(cloudinaryUploadError('Cannot upload an empty work report attachment'));
+    }
 
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
-        public_id: publicId,
+        public_id: `${Date.now()}_${sanitizedFileName}`,
         resource_type: resourceType,
         overwrite: true
       },
       (error, result) => {
-        if (error) {
-          return reject(new Error(`Cloudinary upload failed: ${error.message}`));
+        if (error || !result || !result.secure_url) {
+          if (error) {
+            console.error('Cloudinary Work Report Upload Failure Details:', {
+              message: error.message,
+              http_code: error.http_code,
+              details: error
+            });
+          }
+          return reject(cloudinaryUploadError(
+            `Cloudinary work report attachment upload failed: ${error ? error.message : 'no secure URL returned'}`,
+            error
+          ));
         }
 
-        if (!result || !result.secure_url) {
-          return reject(new Error('Cloudinary upload returned invalid response'));
-        }
-
-        const ext = fileName.split('.').pop().toLowerCase();
         return resolve({
-          fileName,
+          fileName: fileName || 'file',
           fileUrl: result.secure_url,
           publicId: result.public_id,
           fileType: isImage ? 'image' : ext,
@@ -282,7 +278,7 @@ const uploadWorkReportAttachmentToCloudinary = (buffer, fileName, mimetype, year
 /**
  * Delete an asset from Cloudinary by publicId
  */
-const deleteCloudinaryAsset = async (publicId, resourceType = 'raw') => {
+const deleteCloudinaryAsset = async (publicId, resourceType = 'auto') => {
   try {
     configureCloudinary();
     return await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });

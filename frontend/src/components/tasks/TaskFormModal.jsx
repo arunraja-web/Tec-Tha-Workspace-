@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Calendar, User, Users, AlertCircle, PlusCircle, Save } from 'lucide-react';
 
 export const TaskFormModal = ({
@@ -22,13 +22,16 @@ export const TaskFormModal = ({
 
   const [errors, setErrors] = useState({});
 
+  const startDateRef = useRef(null);
+  const dueDateRef = useRef(null);
+
   useEffect(() => {
     if (initialData) {
       setFormData({
         title: initialData.title || '',
         description: initialData.description || '',
-        assignedTo: initialData.assignedTo?.id || initialData.assignedTo?._id || initialData.assignedTo || '',
-        group: initialData.group?.id || initialData.group?._id || initialData.group || '',
+        assignedTo: initialData.assignedTo?.id || initialData.assignedTo?._id || (typeof initialData.assignedTo === 'string' ? initialData.assignedTo : ''),
+        group: initialData.group?.id || initialData.group?._id || (typeof initialData.group === 'string' ? initialData.group : ''),
         priority: initialData.priority || 'medium',
         startDate: initialData.startDate ? new Date(initialData.startDate).toISOString().split('T')[0] : '',
         dueDate: initialData.dueDate ? new Date(initialData.dueDate).toISOString().split('T')[0] : '',
@@ -37,7 +40,7 @@ export const TaskFormModal = ({
       setFormData({
         title: '',
         description: '',
-        assignedTo: employees.length > 0 ? (employees[0].id || employees[0]._id) : '',
+        assignedTo: '',
         group: '',
         priority: 'medium',
         startDate: new Date().toISOString().split('T')[0],
@@ -61,8 +64,8 @@ export const TaskFormModal = ({
       errs.description = 'Description cannot exceed 3000 characters.';
     }
 
-    if (!formData.assignedTo) {
-      errs.assignedTo = 'Please select an assigned employee.';
+    if (!formData.assignedTo && !formData.group) {
+      errs.assignedTo = 'Please select either an assigned employee or a group.';
     }
 
     if (formData.startDate && formData.dueDate) {
@@ -79,7 +82,26 @@ export const TaskFormModal = ({
     e.preventDefault();
     if (!validate()) return;
     if (onSubmit) {
-      onSubmit(formData);
+      const payload = {
+        title: formData.title.trim(),
+        description: formData.description ? formData.description.trim() : '',
+        assignedTo: formData.assignedTo ? formData.assignedTo : null,
+        priority: formData.priority,
+        group: formData.group ? formData.group : null,
+        startDate: formData.startDate ? formData.startDate : null,
+        dueDate: formData.dueDate ? formData.dueDate : null,
+      };
+      onSubmit(payload);
+    }
+  };
+
+  const handleOpenPicker = (ref) => {
+    if (ref.current) {
+      if (typeof ref.current.showPicker === 'function') {
+        ref.current.showPicker();
+      } else {
+        ref.current.focus();
+      }
     }
   };
 
@@ -108,6 +130,21 @@ export const TaskFormModal = ({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-4 flex-grow">
+          {/* Top Validation Error Banner */}
+          {Object.keys(errors).length > 0 && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-start gap-2.5 shadow-xs">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold">Please correct the following errors before saving:</p>
+                <ul className="list-disc list-inside mt-1 space-y-0.5 text-rose-700">
+                  {Object.values(errors).map((err, idx) => (
+                    <li key={idx}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+
           {/* Title */}
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
@@ -120,11 +157,11 @@ export const TaskFormModal = ({
               placeholder="e.g. Implement Authentication System"
               className={`w-full px-3 py-2 bg-white border text-sm text-slate-900 focus:outline-none rounded-none ${
                 errors.title
-                  ? 'border-rose-500 focus:border-rose-500'
+                  ? 'border-rose-500 focus:border-rose-500 bg-rose-50/20'
                   : 'border-slate-300 focus:border-[#0562ff]'
               }`}
             />
-            {errors.title && <p className="text-xs text-rose-600 mt-1">{errors.title}</p>}
+            {errors.title && <p className="text-xs text-rose-600 font-semibold mt-1">{errors.title}</p>}
           </div>
 
           {/* Description */}
@@ -139,11 +176,11 @@ export const TaskFormModal = ({
               placeholder="Provide clear technical details and expectations for this task..."
               className={`w-full px-3 py-2 bg-white border text-sm text-slate-900 focus:outline-none rounded-none ${
                 errors.description
-                  ? 'border-rose-500 focus:border-rose-500'
+                  ? 'border-rose-500 focus:border-rose-500 bg-rose-50/20'
                   : 'border-slate-300 focus:border-[#0562ff]'
               }`}
             />
-            {errors.description && <p className="text-xs text-rose-600 mt-1">{errors.description}</p>}
+            {errors.description && <p className="text-xs text-rose-600 font-semibold mt-1">{errors.description}</p>}
           </div>
 
           {/* Assignee & Group Grid */}
@@ -151,7 +188,7 @@ export const TaskFormModal = ({
             {/* Assignee */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Assigned Employee <span className="text-rose-500">*</span>
+                Assigned Employee {formData.group ? '(Optional - default All Group Members)' : <span className="text-rose-500">*</span>}
               </label>
               <div className="relative">
                 <select
@@ -159,11 +196,11 @@ export const TaskFormModal = ({
                   onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
                   className={`w-full px-3 py-2 bg-white border text-sm text-slate-900 focus:outline-none rounded-none ${
                     errors.assignedTo
-                      ? 'border-rose-500 focus:border-rose-500'
+                      ? 'border-rose-500 focus:border-rose-500 bg-rose-50/20'
                       : 'border-slate-300 focus:border-[#0562ff]'
                   }`}
                 >
-                  <option value="">Select Employee...</option>
+                  <option value="">{formData.group ? 'All Group Members (Entire Group)' : 'Select Employee...'}</option>
                   {employees.map((emp) => (
                     <option key={emp.id || emp._id} value={emp.id || emp._id}>
                       {emp.name} ({emp.email})
@@ -171,7 +208,7 @@ export const TaskFormModal = ({
                   ))}
                 </select>
               </div>
-              {errors.assignedTo && <p className="text-xs text-rose-600 mt-1">{errors.assignedTo}</p>}
+              {errors.assignedTo && <p className="text-xs text-rose-600 font-semibold mt-1">{errors.assignedTo}</p>}
             </div>
 
             {/* Group */}
@@ -218,12 +255,29 @@ export const TaskFormModal = ({
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                 Start Date
               </label>
-              <input
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-slate-300 text-sm text-slate-900 focus:outline-none focus:border-[#0562ff] rounded-none"
-              />
+              <div className="relative flex items-center">
+                <input
+                  ref={startDateRef}
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                  className={`w-full pl-3 pr-9 py-2 bg-white border text-sm text-slate-900 focus:outline-none rounded-none ${
+                    errors.startDate
+                      ? 'border-rose-500 focus:border-rose-500 bg-rose-50/20'
+                      : 'border-slate-300 focus:border-[#0562ff]'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleOpenPicker(startDateRef)}
+                  className="absolute right-2 text-slate-500 hover:text-[#0562ff] transition-colors p-1"
+                  title="Select Start Date"
+                  tabIndex={-1}
+                >
+                  <Calendar className="w-4 h-4" />
+                </button>
+              </div>
+              {errors.startDate && <p className="text-xs text-rose-600 font-semibold mt-1">{errors.startDate}</p>}
             </div>
 
             {/* Due Date */}
@@ -231,17 +285,29 @@ export const TaskFormModal = ({
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                 Due Date
               </label>
-              <input
-                type="date"
-                value={formData.dueDate}
-                onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                className={`w-full px-3 py-2 bg-white border text-sm text-slate-900 focus:outline-none rounded-none ${
-                  errors.dueDate
-                    ? 'border-rose-500 focus:border-rose-500'
-                    : 'border-slate-300 focus:border-[#0562ff]'
-                }`}
-              />
-              {errors.dueDate && <p className="text-xs text-rose-600 mt-1">{errors.dueDate}</p>}
+              <div className="relative flex items-center">
+                <input
+                  ref={dueDateRef}
+                  type="date"
+                  value={formData.dueDate}
+                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                  className={`w-full pl-3 pr-9 py-2 bg-white border text-sm text-slate-900 focus:outline-none rounded-none ${
+                    errors.dueDate
+                      ? 'border-rose-500 focus:border-rose-500 bg-rose-50/20'
+                      : 'border-slate-300 focus:border-[#0562ff]'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleOpenPicker(dueDateRef)}
+                  className="absolute right-2 text-slate-500 hover:text-[#0562ff] transition-colors p-1"
+                  title="Select Due Date"
+                  tabIndex={-1}
+                >
+                  <Calendar className="w-4 h-4" />
+                </button>
+              </div>
+              {errors.dueDate && <p className="text-xs text-rose-600 font-semibold mt-1">{errors.dueDate}</p>}
             </div>
           </div>
         </form>

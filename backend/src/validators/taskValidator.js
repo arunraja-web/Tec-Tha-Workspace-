@@ -31,15 +31,27 @@ const validateCreateTask = [
     .isLength({ max: 3000 })
     .withMessage('Description cannot exceed 3000 characters'),
   body('assignedTo')
-    .notEmpty()
-    .withMessage('assignedTo is required')
-    .bail()
-    .custom((val) => mongoose.Types.ObjectId.isValid(val))
-    .withMessage('Invalid assignedTo User ID'),
+    .optional({ nullable: true })
+    .custom((val, { req }) => {
+      if (!val && !req.body.group) {
+        throw new Error('Task must be assigned to either an employee or a group');
+      }
+      if (val && !mongoose.Types.ObjectId.isValid(val)) {
+        throw new Error('Invalid assignedTo User ID');
+      }
+      return true;
+    }),
   body('group')
     .optional({ nullable: true })
-    .custom((val) => !val || mongoose.Types.ObjectId.isValid(val))
-    .withMessage('Invalid group ID'),
+    .custom((val, { req }) => {
+      if (!val && !req.body.assignedTo) {
+        throw new Error('Task must be assigned to either an employee or a group');
+      }
+      if (val && !mongoose.Types.ObjectId.isValid(val)) {
+        throw new Error('Invalid group ID');
+      }
+      return true;
+    }),
   body('priority')
     .optional()
     .isIn(['low', 'medium', 'high', 'urgent'])

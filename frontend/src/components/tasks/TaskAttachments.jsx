@@ -68,7 +68,7 @@ export const TaskAttachments = ({
             ref={fileInputRef}
             onChange={handleFileChange}
             className="hidden"
-            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
+            accept="*/*"
           />
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -82,7 +82,7 @@ export const TaskAttachments = ({
       </div>
 
       {uploadError && (
-        <div className="p-3 bg-rose-50 border border-rose-200 text-xs text-rose-700">
+        <div className="p-3 bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold">
           {uploadError}
         </div>
       )}
@@ -90,16 +90,15 @@ export const TaskAttachments = ({
       {/* Attachments List */}
       {attachments.length === 0 ? (
         <div className="text-center py-8 text-slate-500 text-sm italic border border-dashed border-slate-200">
-          No attachments uploaded yet. Supports PDF, DOC, XLS, PNG, JPG (Max 10MB).
+          No attachments uploaded yet. Supports PDF, DOC, XLS, PNG, JPG, ZIP (Max 10MB).
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {attachments.map((att) => {
             const attachmentId = att.id || att._id;
-            const uploader = att.uploadedBy || {};
-            const isUploader =
-              currentUser &&
-              (uploader._id === currentUser._id || uploader.id === currentUser._id || uploader._id === currentUser.id);
+            const uploaderId = typeof att.uploadedBy === 'object' ? (att.uploadedBy?._id || att.uploadedBy?.id) : att.uploadedBy;
+            const currentUserId = currentUser?._id || currentUser?.id;
+            const isUploader = currentUserId && uploaderId && (String(uploaderId) === String(currentUserId));
             const canDelete = isUploader || currentUser?.role === 'admin' || currentUser?.role === 'founder';
 
             return (

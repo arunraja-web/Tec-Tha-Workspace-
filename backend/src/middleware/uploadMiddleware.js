@@ -3,31 +3,16 @@ const multer = require('multer');
 // Configure memory storage
 const storage = multer.memoryStorage();
 
-// Allowed MIME types and extensions
-const allowedMimeTypes = [
-  'image/jpeg',
-  'image/png',
-  'image/jpg',
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-];
+const dangerousExtensions = ['exe', 'bat', 'cmd', 'sh', 'msi', 'dll', 'vbs', 'ps1', 'com', 'scr'];
 
 const fileFilter = (req, file, cb) => {
-  const ext = file.originalname.split('.').pop().toLowerCase();
-  const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png'];
-
-  if (allowedMimeTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
-    cb(null, true);
-  } else {
-    const error = new Error('Invalid file type. Only PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, JPEG, and PNG files are allowed.');
+  const ext = file.originalname ? file.originalname.split('.').pop().toLowerCase() : '';
+  if (dangerousExtensions.includes(ext)) {
+    const error = new Error('Executable and script files are not allowed for security reasons.');
     error.statusCode = 400;
-    cb(error, false);
+    return cb(error, false);
   }
+  cb(null, true);
 };
 
 // 10 MB Max File Size Limit

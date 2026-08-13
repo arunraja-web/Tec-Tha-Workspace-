@@ -15,6 +15,17 @@ export const TaskList = ({
 }) => {
   if (!tasks || tasks.length === 0) return null;
 
+  // Deduplicate tasks by ID to guarantee unique React keys
+  const uniqueTasks = [];
+  const seenIds = new Set();
+  (tasks || []).forEach((t, idx) => {
+    const id = t?.id || t?._id || `task-idx-${idx}`;
+    if (!seenIds.has(id)) {
+      seenIds.add(id);
+      uniqueTasks.push(t);
+    }
+  });
+
   if (viewMode === 'table') {
     return (
       <div className="bg-white border border-slate-200 shadow-xs overflow-x-auto font-montserrat">
@@ -31,7 +42,7 @@ export const TaskList = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 text-sm">
-            {tasks.map((task) => {
+            {uniqueTasks.map((task) => {
               const taskId = task.id || task._id;
               const isOverdue =
                 task.overdue ||
@@ -66,7 +77,7 @@ export const TaskList = ({
                   <td className="py-3.5 px-4 text-xs font-medium text-slate-700">
                     <div className="flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5 text-[#0562ff]" />
-                      <span>{task.assignedTo?.name || 'Unassigned'}</span>
+                      <span>{task.assignedTo?.name || (task.group?.name ? 'All Group Members' : 'Unassigned')}</span>
                     </div>
                   </td>
 
@@ -138,7 +149,7 @@ export const TaskList = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      {tasks.map((task) => (
+      {uniqueTasks.map((task) => (
         <TaskCard
           key={task.id || task._id}
           task={task}

@@ -187,7 +187,7 @@ export const taskService = {
   addComment: async (id, text) => {
     return await fetchApi(`/tasks/${id}/comments`, {
       method: 'POST',
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ content: text, text }),
     });
   },
 
@@ -200,7 +200,7 @@ export const taskService = {
   updateComment: async (taskId, commentId, text) => {
     return await fetchApi(`/tasks/${taskId}/comments/${commentId}`, {
       method: 'PUT',
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ content: text, text }),
     });
   },
 

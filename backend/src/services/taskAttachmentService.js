@@ -2,6 +2,7 @@ const Task = require('../models/Task');
 const TaskHistory = require('../models/TaskHistory');
 const ActivityLog = require('../models/ActivityLog');
 const { uploadTaskAttachmentToCloudinary, deleteCloudinaryAsset } = require('../utils/cloudinary');
+const { canEmployeeAccessTask } = require('./taskService');
 
 /**
  * Upload attachment file for task
@@ -21,10 +22,8 @@ const uploadAttachment = async (currentUser, taskId, file) => {
   }
 
   // Authorization check
-  if (
-    currentUser.role === 'employee' &&
-    task.assignedTo.toString() !== currentUser._id.toString()
-  ) {
+  const hasAccess = await canEmployeeAccessTask(currentUser, task);
+  if (!hasAccess) {
     const err = new Error('Not authorized to add attachments to this task');
     err.statusCode = 403;
     throw err;
@@ -91,20 +90,28 @@ const deleteAttachment = async (currentUser, taskId, attachmentId) => {
 
   const attachment = task.attachments[attachmentIndex];
 
-  // Authorization check: Uploader or Admin/Founder
-  const isUploader = attachment.uploadedBy.toString() === currentUser._id.toString();
+  // Authorization check: Uploader, Admin/Founder, or assigned employee / group member
+  const uploaderId = attachment.uploadedBy
+    ? (attachment.uploadedBy._id || attachment.uploadedBy).toString()
+    : null;
+  const isUploader = uploaderId && uploaderId === currentUser._id.toString();
   const isManagement = ['admin', 'founder'].includes(currentUser.role);
+  const hasAccess = await canEmployeeAccessTask(currentUser, task);
 
-  if (!isUploader && !isManagement) {
+  if (!isUploader && !isManagement && !hasAccess) {
     const err = new Error('Not authorized to delete this attachment');
     err.statusCode = 403;
     throw err;
   }
 
-  // Delete from Cloudinary
-  if (attachment.publicId) {
-    const isImage = attachment.fileType === 'image' || attachment.fileType.startsWith('image/');
-    await deleteCloudinaryAsset(attachment.publicId, isImage ? 'image' : 'raw');
+  // Delete from Cloudinary safely
+  if (attachment.publicId && !attachment.publicId.startsWith('data_uri_')) {
+    try {
+      const isImage = attachment.fileType === 'image' || (attachment.fileType && attachment.fileType.startsWith('image/'));
+      await deleteCloudinaryAsset(attachment.publicId, isImage ? 'image' : 'auto');
+    } catch (e) {
+      console.warn(`Cloudinary asset deletion warning: ${e.message}`);
+    }
   }
 
   task.attachments.splice(attachmentIndex, 1);

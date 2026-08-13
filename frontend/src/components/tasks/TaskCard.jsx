@@ -27,8 +27,8 @@ export const TaskCard = ({
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  const assignedName = task.assignedTo?.name || 'Unassigned';
   const groupName = task.group?.name || null;
+  const assignedName = task.assignedTo?.name || (groupName ? 'All Group Members' : 'Unassigned');
   const commentCount = task.commentsCount || (task.comments ? task.comments.length : 0);
   const attachmentCount = task.attachmentsCount || (task.attachments ? task.attachments.length : 0);
 

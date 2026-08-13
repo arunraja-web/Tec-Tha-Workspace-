@@ -26,7 +26,14 @@ const attendanceExportSchema = new mongoose.Schema(
     },
     fileUrl: {
       type: String,
-      default: null
+      default: null,
+      validate: {
+        validator: function (v) {
+          if (!v) return true;
+          return !v.startsWith('data:') && (v.startsWith('http://') || v.startsWith('https://'));
+        },
+        message: 'Export fileUrl must be a valid Cloudinary HTTPS URL and cannot be a Base64 Data URI.'
+      }
     },
     recordCount: {
       type: Number,

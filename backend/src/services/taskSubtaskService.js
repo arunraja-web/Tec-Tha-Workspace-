@@ -1,6 +1,7 @@
 const Task = require('../models/Task');
 const User = require('../models/User');
 const TaskHistory = require('../models/TaskHistory');
+const { canEmployeeAccessTask } = require('./taskService');
 
 /**
  * Helper to recalculate parent task progress based on subtasks
@@ -68,10 +69,8 @@ const getSubtasks = async (currentUser, parentTaskId) => {
     throw err;
   }
 
-  if (
-    currentUser.role === 'employee' &&
-    parentTask.assignedTo.toString() !== currentUser._id.toString()
-  ) {
+  const hasAccess = await canEmployeeAccessTask(currentUser, parentTask);
+  if (!hasAccess) {
     const err = new Error('Not authorized to view subtasks for this task');
     err.statusCode = 403;
     throw err;

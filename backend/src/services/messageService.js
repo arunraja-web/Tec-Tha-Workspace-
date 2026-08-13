@@ -4,6 +4,15 @@ const Conversation = require('../models/Conversation');
 const ActivityLog = require('../models/ActivityLog');
 const { verifyConversationAccess } = require('./conversationService');
 
+const isCloudinaryUrl = (value) => {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname === 'res.cloudinary.com';
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Create a new message in a conversation (DB First)
  */
@@ -22,6 +31,11 @@ const createMessage = async (senderUser, { conversationId, content, messageType 
   } else if (messageType === 'image' || messageType === 'file') {
     if (!attachment || !attachment.fileUrl) {
       const err = new Error('Attachment fileUrl is required for image/file message type.');
+      err.statusCode = 400;
+      throw err;
+    }
+    if (!isCloudinaryUrl(attachment.fileUrl)) {
+      const err = new Error('Attachments must be uploaded to Cloudinary before sending a message.');
       err.statusCode = 400;
       throw err;
     }

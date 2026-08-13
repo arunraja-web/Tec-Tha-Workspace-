@@ -9,7 +9,14 @@ const attachmentSchema = new mongoose.Schema(
     },
     fileUrl: {
       type: String,
-      required: true
+      required: true,
+      validate: {
+        validator: function (v) {
+          if (!v) return false;
+          return !v.startsWith('data:') && (v.startsWith('http://') || v.startsWith('https://'));
+        },
+        message: 'Attachment fileUrl must be a valid Cloudinary HTTPS URL and cannot be a Base64 Data URI.'
+      }
     },
     publicId: {
       type: String,

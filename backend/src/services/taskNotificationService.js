@@ -4,16 +4,38 @@ const { createNotification, createBulkNotifications } = require('./notificationS
  * Task Notification Service helper
  */
 const notifyTaskAssigned = async (task, assignedToUser, assignerUser) => {
-  if (!assignedToUser || !assignedToUser._id) return;
-  if (assignedToUser._id.toString() === assignerUser._id.toString()) return;
+  if (assignedToUser && assignedToUser._id && assignedToUser._id.toString() !== assignerUser._id.toString()) {
+    await createNotification({
+      recipient: assignedToUser._id,
+      title: 'New Task Assigned',
+      message: `${assignerUser.name} assigned you a task: "${task.title}"`,
+      type: 'TASK_ASSIGNED',
+      group: task.group || null
+    });
+  }
 
-  await createNotification({
-    recipient: assignedToUser._id,
-    title: 'New Task Assigned',
-    message: `${assignerUser.name} assigned you a task: "${task.title}"`,
-    type: 'TASK_ASSIGNED',
-    group: task.group || null
-  });
+  if (task.group) {
+    try {
+      const Group = require('../models/Group');
+      const groupDoc = await Group.findById(task.group).select('members name');
+      if (groupDoc && groupDoc.members && groupDoc.members.length > 0) {
+        const recipientIds = groupDoc.members.filter(
+          (mId) => mId.toString() !== assignerUser._id.toString() && (!assignedToUser || mId.toString() !== assignedToUser._id.toString())
+        );
+        if (recipientIds.length > 0) {
+          await createBulkNotifications(
+            recipientIds,
+            'New Group Task',
+            `${assignerUser.name} assigned a new task to your group (${groupDoc.name}): "${task.title}"`,
+            'TASK_ASSIGNED',
+            task.group
+          );
+        }
+      }
+    } catch (e) {
+      // Ignore notification failures
+    }
+  }
 };
 
 const notifyTaskReassigned = async (task, newEmployee, oldEmployeeId, assignerUser) => {

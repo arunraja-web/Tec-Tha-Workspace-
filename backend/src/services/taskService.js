@@ -45,6 +45,36 @@ const executeInTransaction = async (operation) => {
 };
 
 /**
+ * Helper to check if employee has access to a task (assigned directly or member of assigned group)
+ */
+const canEmployeeAccessTask = async (currentUser, task) => {
+  if (!task) return false;
+  if (['admin', 'founder'].includes(currentUser.role)) return true;
+
+  const assignedToId = task.assignedTo?._id
+    ? task.assignedTo._id.toString()
+    : task.assignedTo
+    ? task.assignedTo.toString()
+    : null;
+
+  if (assignedToId && assignedToId === currentUser._id.toString()) {
+    return true;
+  }
+
+  if (task.group) {
+    const groupId = task.group._id ? task.group._id : task.group;
+    const isMember = await Group.exists({
+      _id: groupId,
+      members: currentUser._id,
+      isActive: true
+    });
+    if (isMember) return true;
+  }
+
+  return false;
+};
+
+/**
  * Create a new task (Admin or Founder only)
  */
 const createTask = async (currentUser, taskData) => {
@@ -66,31 +96,42 @@ const createTask = async (currentUser, taskData) => {
     recurrence
   } = taskData;
 
-  // 1. Verify Assigned Employee exists and is active
-  const targetEmployee = await User.findById(assignedTo);
-  if (!targetEmployee || !targetEmployee.isActive) {
-    const err = new Error('Assigned user does not exist or is inactive');
-    err.statusCode = 404;
+  if (!assignedTo && !group) {
+    const err = new Error('Task must be assigned to either an employee or a group');
+    err.statusCode = 400;
     throw err;
   }
 
+  // 1. Verify Assigned Employee if provided
+  let targetEmployee = null;
+  if (assignedTo) {
+    targetEmployee = await User.findById(assignedTo);
+    if (!targetEmployee || !targetEmployee.isActive) {
+      const err = new Error('Assigned user does not exist or is inactive');
+      err.statusCode = 404;
+      throw err;
+    }
+  }
+
   // 2. Verify Group if provided
+  let targetGroup = null;
   if (group) {
-    const targetGroup = await Group.findById(group);
+    targetGroup = await Group.findById(group);
     if (!targetGroup || !targetGroup.isActive) {
       const err = new Error('Specified group does not exist or is inactive');
       err.statusCode = 404;
       throw err;
     }
 
-    // Check membership
-    const isMember = targetGroup.members.some(
-      (mId) => mId.toString() === assignedTo.toString()
-    );
-    if (!isMember) {
-      const err = new Error('Assigned employee is not a member of the specified group');
-      err.statusCode = 400;
-      throw err;
+    if (assignedTo) {
+      const isMember = targetGroup.members.some(
+        (mId) => mId.toString() === assignedTo.toString()
+      );
+      if (!isMember) {
+        const err = new Error('Assigned employee is not a member of the specified group');
+        err.statusCode = 400;
+        throw err;
+      }
     }
   }
 
@@ -103,7 +144,7 @@ const createTask = async (currentUser, taskData) => {
         {
           title: title.trim(),
           description: description ? description.trim() : '',
-          assignedTo,
+          assignedTo: assignedTo || null,
           assignedBy: currentUser._id,
           group: group || null,
           priority: priority || 'medium',
@@ -132,14 +173,20 @@ const createTask = async (currentUser, taskData) => {
     );
 
     // Record Activity Log
+    const targetDesc = targetEmployee
+      ? targetEmployee.name
+      : targetGroup
+      ? `Group: ${targetGroup.name}`
+      : 'Group Members';
+
     await ActivityLog.create(
       [
         {
           performedBy: currentUser._id,
-          targetUser: assignedTo,
+          targetUser: assignedTo || null,
           group: group || null,
           action: 'TASK_CREATED',
-          description: `Created task: "${newTask.title}" for ${targetEmployee.name}`
+          description: `Created task: "${newTask.title}" for ${targetDesc}`
         }
       ],
       opts
@@ -181,9 +228,15 @@ const getTasks = async (currentUser, queryParams) => {
 
   const filter = {};
 
-  // Role scoping: Employee receives ONLY their assigned tasks
+  // Role scoping: Employee receives their directly assigned tasks AND group tasks
   if (currentUser.role === 'employee') {
-    filter.assignedTo = currentUser._id;
+    const userGroups = await Group.find({ members: currentUser._id, isActive: true }).select('_id');
+    const userGroupIds = userGroups.map((g) => g._id);
+
+    filter.$or = [
+      { assignedTo: currentUser._id },
+      { group: { $in: userGroupIds } }
+    ];
   } else if (assignedTo) {
     filter.assignedTo = assignedTo;
   }
@@ -216,10 +269,19 @@ const getTasks = async (currentUser, queryParams) => {
 
   // Search filter (title & description)
   if (search && search.trim()) {
-    filter.$or = [
+    const searchCondition = [
       { title: { $regex: search.trim(), $options: 'i' } },
       { description: { $regex: search.trim(), $options: 'i' } }
     ];
+    if (filter.$or) {
+      filter.$and = [
+        { $or: filter.$or },
+        { $or: searchCondition }
+      ];
+      delete filter.$or;
+    } else {
+      filter.$or = searchCondition;
+    }
   }
 
   const pageNum = parseInt(page, 10) || 1;
@@ -257,7 +319,7 @@ const getTasks = async (currentUser, queryParams) => {
  * Get current employee's assigned tasks
  */
 const getMyTasks = async (currentUser, queryParams) => {
-  return await getTasks(currentUser, { ...queryParams, assignedTo: currentUser._id });
+  return await getTasks(currentUser, queryParams);
 };
 
 /**
@@ -276,11 +338,8 @@ const getTaskById = async (currentUser, taskId) => {
     throw err;
   }
 
-  // Access Control: Admin/Founder or assigned employee
-  if (
-    currentUser.role === 'employee' &&
-    task.assignedTo._id.toString() !== currentUser._id.toString()
-  ) {
+  const hasAccess = await canEmployeeAccessTask(currentUser, task);
+  if (!hasAccess) {
     const err = new Error('You are not authorized to view this task');
     err.statusCode = 403;
     throw err;
@@ -420,8 +479,9 @@ const updateStatus = async (currentUser, taskId, newStatus) => {
 
   // Permission Check
   if (currentUser.role === 'employee') {
-    if (task.assignedTo.toString() !== currentUser._id.toString()) {
-      const err = new Error('Not authorized to update status for another employee\'s task');
+    const hasAccess = await canEmployeeAccessTask(currentUser, task);
+    if (!hasAccess) {
+      const err = new Error('Not authorized to update status for this task');
       err.statusCode = 403;
       throw err;
     }
@@ -484,13 +544,13 @@ const updateProgress = async (currentUser, taskId, progressVal) => {
     throw err;
   }
 
-  if (
-    currentUser.role === 'employee' &&
-    task.assignedTo.toString() !== currentUser._id.toString()
-  ) {
-    const err = new Error('Not authorized to update progress for this task');
-    err.statusCode = 403;
-    throw err;
+  if (currentUser.role === 'employee') {
+    const hasAccess = await canEmployeeAccessTask(currentUser, task);
+    if (!hasAccess) {
+      const err = new Error('Not authorized to update progress for this task');
+      err.statusCode = 403;
+      throw err;
+    }
   }
 
   const numProgress = parseInt(progressVal, 10);
@@ -843,6 +903,7 @@ const getTaskHistory = async (currentUser, taskId) => {
 };
 
 module.exports = {
+  canEmployeeAccessTask,
   createTask,
   getTasks,
   getMyTasks,

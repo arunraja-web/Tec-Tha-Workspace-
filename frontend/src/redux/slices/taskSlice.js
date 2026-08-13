@@ -463,7 +463,11 @@ const taskSlice = createSlice({
       })
       .addCase(fetchTaskById.fulfilled, (state, action) => {
         state.detailsLoading = false;
-        state.selectedTask = action.payload.data?.task || action.payload.task || action.payload.data;
+        const task = action.payload.data?.task || action.payload.task || action.payload.data;
+        state.selectedTask = task;
+        if (task && task.attachments) {
+          state.attachments = task.attachments;
+        }
       })
       .addCase(fetchTaskById.rejected, (state, action) => {
         state.detailsLoading = false;
@@ -593,6 +597,22 @@ const taskSlice = createSlice({
       })
       .addCase(deleteSubtaskThunk.fulfilled, (state, action) => {
         state.subtasks = state.subtasks.filter((s) => s.id !== action.payload.subtaskId && s._id !== action.payload.subtaskId);
+      })
+
+      // Attachments
+      .addCase(uploadAttachmentThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const newAttachment = action.payload.data?.attachment || action.payload.data || action.payload;
+        if (newAttachment && (newAttachment._id || newAttachment.id)) {
+          state.attachments.push(newAttachment);
+        }
+      })
+      .addCase(deleteAttachmentThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const attachmentId = action.meta?.arg?.attachmentId;
+        if (attachmentId) {
+          state.attachments = state.attachments.filter((a) => a._id !== attachmentId && a.id !== attachmentId);
+        }
       })
 
       // Analytics

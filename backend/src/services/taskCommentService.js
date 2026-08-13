@@ -3,6 +3,7 @@ const TaskComment = require('../models/TaskComment');
 const TaskHistory = require('../models/TaskHistory');
 const ActivityLog = require('../models/ActivityLog');
 const { notifyTaskCommentAdded } = require('./taskNotificationService');
+const { canEmployeeAccessTask } = require('./taskService');
 
 /**
  * Get comments for a task
@@ -16,10 +17,8 @@ const getComments = async (currentUser, taskId) => {
   }
 
   // Authorization check
-  if (
-    currentUser.role === 'employee' &&
-    task.assignedTo.toString() !== currentUser._id.toString()
-  ) {
+  const hasAccess = await canEmployeeAccessTask(currentUser, task);
+  if (!hasAccess) {
     const err = new Error('Not authorized to access comments for this task');
     err.statusCode = 403;
     throw err;
@@ -44,10 +43,8 @@ const addComment = async (currentUser, taskId, content) => {
   }
 
   // Employee can only comment on assigned tasks
-  if (
-    currentUser.role === 'employee' &&
-    task.assignedTo.toString() !== currentUser._id.toString()
-  ) {
+  const hasAccess = await canEmployeeAccessTask(currentUser, task);
+  if (!hasAccess) {
     const err = new Error('Not authorized to comment on this task');
     err.statusCode = 403;
     throw err;
