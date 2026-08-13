@@ -5,6 +5,18 @@ import { fetchApi } from './api';
  */
 export const userService = {
   /**
+   * Get a limited colleague directory for direct chat (all authenticated roles).
+   */
+  getChatDirectory: async (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.append('search', params.search);
+    if (params.limit) query.append('limit', params.limit);
+
+    const queryString = query.toString();
+    return await fetchApi(`/users/directory${queryString ? `?${queryString}` : ''}`, { method: 'GET' });
+  },
+
+  /**
    * Get all users with filtering, search, pagination, and sorting (Admin only)
    * @param {Object} params - { search, role, status, page, limit, sortBy, sortOrder }
    */

@@ -103,7 +103,18 @@ const uploadChatAttachmentToCloudinary = (buffer, fileName, mimetype) => {
       },
       (error, result) => {
         if (error) {
-          return reject(new Error(`Cloudinary upload failed: ${error.message}`));
+          console.warn(`Cloudinary chat upload warning (${error.message}). Using Data URI fallback.`);
+          const base64Data = buffer.toString('base64');
+          const dataUrl = `data:${mimetype};base64,${base64Data}`;
+          return resolve({
+            fileName,
+            originalName: fileName,
+            fileUrl: dataUrl,
+            url: dataUrl,
+            publicId,
+            fileType: isImage ? 'image' : 'file',
+            fileSize: buffer.length
+          });
         }
 
         if (!result || !result.secure_url) {
@@ -112,7 +123,9 @@ const uploadChatAttachmentToCloudinary = (buffer, fileName, mimetype) => {
 
         return resolve({
           fileName,
+          originalName: fileName,
           fileUrl: result.secure_url,
+          url: result.secure_url,
           publicId: result.public_id,
           fileType: isImage ? 'image' : 'file',
           fileSize: buffer.length

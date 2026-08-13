@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { Crown, LogOut, ShieldCheck, Activity, Users, TrendingUp, Sparkles } from 'lucide-react';
+import { Crown, LogOut, ShieldCheck, Activity, Users, TrendingUp, Sparkles, MessageSquare } from 'lucide-react';
 import Button from '../../components/common/Button';
 import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
 
@@ -38,6 +38,9 @@ export const FounderDashboard = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <Button to="/chat" variant="primary" size="sm" icon={MessageSquare}>
+              Chat
+            </Button>
             <Button to="/founder/groups" variant="outline" size="sm">
               Groups
             </Button>

@@ -8,7 +8,9 @@ import {
   Clock,
   CheckSquare,
   Calendar,
-  CalendarCheck2
+  CalendarCheck2,
+  MessageSquare,
+  Users
 } from 'lucide-react';
 import MeetingSection from '../../components/meetings/MeetingSection';
 import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
@@ -77,6 +79,24 @@ export const EmployeeDashboard = () => {
               </div>
             </div>
 
+            {/* Chat Navigation Link */}
+            <Link
+              to="/chat"
+              className="p-2.5 text-white bg-[#0562ff] hover:bg-blue-700 rounded-none transition-colors text-sm font-semibold flex items-center gap-2 font-montserrat shadow-xs"
+            >
+              <MessageSquare className="w-4.5 h-4.5" />
+              <span>Chat</span>
+            </Link>
+
+            {/* My Groups Navigation Link */}
+            <Link
+              to="/employee/groups"
+              className="p-2.5 text-slate-700 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-none transition-colors text-sm font-semibold flex items-center gap-2 font-montserrat"
+            >
+              <Users className="w-4.5 h-4.5" />
+              <span className="hidden sm:inline">My Groups</span>
+            </Link>
+
             {/* Attendance Navigation Link */}
             <Link
               to="/employee/attendance"
@@ -101,11 +121,15 @@ export const EmployeeDashboard = () => {
             {/* Sign Out Button */}
             <button
               onClick={handleLogout}
-              className="bg-[#0562ff] hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-none shadow-sm transition-all flex items-center gap-2 cursor-pointer font-montserrat"
+              className="bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold px-4 py-2.5 rounded-none shadow-sm transition-all flex items-center gap-2 cursor-pointer font-montserrat"
             >
               <LogOut className="w-4.5 h-4.5" />
               <span>Sign Out</span>
             </button>
+          </div>
+
+        </div>
+      </header>
           </div>
 
         </div>

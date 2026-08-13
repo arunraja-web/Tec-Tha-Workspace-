@@ -206,7 +206,12 @@ const getUserConversations = async (user) => {
     group: { $in: activeGroupIds },
     isActive: true
   })
-    .populate('group', 'name description createdBy isActive')
+    .populate({
+      path: 'group',
+      select: 'name description createdBy isActive members',
+      populate: { path: 'members', select: 'name email role phone' }
+    })
+    .populate('participants', 'name email role phone')
     .populate({
       path: 'lastMessage',
       populate: { path: 'sender', select: 'name email role' }

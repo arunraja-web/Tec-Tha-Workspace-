@@ -64,6 +64,12 @@ const initSocketServer = (httpServer, corsOptions) => {
       });
     }
 
+    // 3. Send current list of ALL online users to THIS connecting socket immediately
+    const onlineUserIds = presenceService.getOnlineUserIds();
+    socket.emit('online_users_list', {
+      onlineUserIds
+    });
+
     // Handle join_conversation
     socket.on('join_conversation', async (data, ack) => {
       try {
