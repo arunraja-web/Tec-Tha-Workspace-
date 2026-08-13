@@ -402,7 +402,7 @@ Upon server startup (`npm run dev`), the system automatically seeds initial acco
 | Role | Primary Email | Password | Secondary Email | Phone |
 | :--- | :--- | :--- | :--- | :--- |
 | **Admin** | `admin@tectha.com` | `Admin@123` | `admin.recovery@tectha.com` | `9999999999` |
-| **Employee** | `test@tectha.com` | `123456` | `test.recovery@tectha.com` | `8888888888` |
+| **Employee** | `test@tectha.com` | `12345678` | `test.recovery@tectha.com` | `8888888888` |
 
 ---
 

@@ -46,7 +46,13 @@ const uploadExcelToCloudinary = (buffer, month, fileName) => {
       },
       (error, result) => {
         if (error) {
-          return reject(new Error(`Cloudinary upload failed: ${error.message}`));
+          console.warn(`Cloudinary raw upload warning (${error.message}). Using Data URI fallback.`);
+          const base64Excel = buffer.toString('base64');
+          const dataUrl = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${base64Excel}`;
+          return resolve({
+            publicId: publicIdWithFolder,
+            secureUrl: dataUrl
+          });
         }
 
         if (!result || !result.secure_url) {

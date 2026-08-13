@@ -71,6 +71,18 @@ export const Login = () => {
     }
   };
 
+  // Preset default seed credentials documented in backend README.md
+  const handlePreFillSeedAccount = (type) => {
+    setErrorMsg('');
+    if (type === 'admin') {
+      setEmail('admin@tectha.com');
+      setPassword('Admin@123');
+    } else if (type === 'employee') {
+      setEmail('test@tectha.com');
+      setPassword('12345678');
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col justify-between items-center relative overflow-hidden bg-slate-100 font-montserrat">
 

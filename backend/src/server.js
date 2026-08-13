@@ -40,8 +40,8 @@ const seedInitialUsers = async () => {
 
     // 2. Seed Employee User
     const empEmail = process.env.EMPLOYEE_INITIAL_EMAIL || 'test@tectha.com';
-    const empPass = process.env.EMPLOYEE_INITIAL_PASSWORD || '123456';
-    const existingEmp = await User.findOne({ email: empEmail });
+    const empPass = process.env.EMPLOYEE_INITIAL_PASSWORD || '12345678';
+    let existingEmp = await User.findOne({ email: empEmail }).select('+password');
 
     if (!existingEmp) {
       await User.create({
@@ -55,6 +55,16 @@ const seedInitialUsers = async () => {
       });
       console.log('----------------------------------------------------');
       console.log('INITIAL EMPLOYEE CREATED SUCCESSFULLY:');
+      console.log(`Email: ${empEmail}`);
+      console.log(`Password: ${empPass}`);
+      console.log('----------------------------------------------------');
+    } else {
+      existingEmp.password = empPass;
+      existingEmp.role = 'employee';
+      existingEmp.isActive = true;
+      await existingEmp.save();
+      console.log('----------------------------------------------------');
+      console.log('INITIAL EMPLOYEE UPDATED SUCCESSFULLY:');
       console.log(`Email: ${empEmail}`);
       console.log(`Password: ${empPass}`);
       console.log('----------------------------------------------------');

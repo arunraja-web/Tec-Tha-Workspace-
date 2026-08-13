@@ -7,6 +7,7 @@ import {
   Globe
 } from 'lucide-react';
 import UserManagement from '../../components/admin/UserManagement';
+import AttendanceSummaryWidget from '../../components/attendance/AttendanceSummaryWidget';
 
 export const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -101,7 +102,11 @@ export const AdminDashboard = () => {
       <div className="relative z-10 w-full flex-grow flex flex-col">
         
         {/* Content Body */}
-        <main className="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow">
+        <main className="max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-grow">
+          {/* Attendance Summary Widget from friend's attendance code */}
+          <AttendanceSummaryWidget role="admin" />
+
+          {/* User Controls & Directory Roster */}
           <UserManagement />
         </main>
 
