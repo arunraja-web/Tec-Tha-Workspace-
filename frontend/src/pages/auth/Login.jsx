@@ -72,7 +72,7 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between items-center relative overflow-hidden bg-slate-100">
+    <div className="min-h-screen flex flex-col justify-between items-center relative overflow-hidden bg-slate-100 font-montserrat">
 
       {/* Faint diagonal-panel background matching light enterprise sign-in aesthetic */}
       <div className="absolute inset-0 pointer-events-none">
@@ -86,7 +86,7 @@ export const Login = () => {
 
       {/* Main Split Card Container */}
       <main className="my-auto relative z-10 max-w-5xl w-full py-10 px-4">
-        <div className="bg-white shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+        <div className="bg-white shadow-xl rounded-none overflow-hidden grid grid-cols-1 md:grid-cols-2">
 
           {/* Left Column: Sign In Form */}
           <div className="p-8 sm:p-10 flex flex-col justify-between gap-6">
@@ -111,21 +111,21 @@ export const Login = () => {
                 <h1 className="text-4xl font-semibold font-montserrat text-slate-900 tracking-tight">
                   Sign in
                 </h1>
-                <p className="text-lg text-slate-500 mt-3">
+                <p className="text-lg text-slate-500 mt-3 font-medium">
                   to access TEC THA Workspace
                 </p>
               </div>
 
               {/* Error Message */}
               {errorMsg && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
+                <div className="p-3.5 rounded-none bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold flex items-center gap-2.5">
+                  <AlertCircle className="w-4.5 h-4.5 shrink-0" />
                   <span>{errorMsg}</span>
                 </div>
               )}
 
               {/* Input Fields */}
-              <form onSubmit={handleSubmit} className="space-y-3.5">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="relative">
                   <Mail className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
@@ -134,7 +134,7 @@ export const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email address"
-                    className="w-full bg-slate-50 border border-slate-300 pl-11 pr-3.5 py-3 text-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0562ff] focus:ring-1 focus:ring-[#0562ff] transition-all font-medium"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-none pl-11 pr-3.5 py-3 text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0562ff] focus:ring-1 focus:ring-[#0562ff] transition-all font-medium font-montserrat"
                   />
                 </div>
 
@@ -146,7 +146,7 @@ export const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
-                    className="w-full bg-slate-50 border border-slate-300 font-montserrat pl-11 pr-11 py-3 text-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0562ff] focus:ring-1 focus:ring-[#0562ff] transition-all font-medium"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-none font-montserrat pl-11 pr-11 py-3 text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0562ff] focus:ring-1 focus:ring-[#0562ff] transition-all font-medium"
                   />
                   <button
                     type="button"
@@ -166,7 +166,7 @@ export const Login = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[#0562ff] hover:bg-blue-700 text-white font-semibold text-lg py-3 shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-70"
+                  className="w-full bg-[#0562ff] hover:bg-blue-700 text-white font-semibold text-base py-3.5 rounded-none shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-70 font-montserrat"
                 >
                   {isSubmitting ? 'Authenticating...' : 'Sign In'}
                 </button>
@@ -186,7 +186,7 @@ export const Login = () => {
                   href="https://tectha.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 transition-all border border-slate-200"
+                  className="p-2 rounded-none text-slate-500 hover:text-[#0562ff] bg-slate-50 hover:bg-slate-100 transition-all border border-slate-200"
                   title="Official Website"
                   aria-label="Official Website"
                 >
@@ -202,7 +202,7 @@ export const Login = () => {
                   href="https://linkedin.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 transition-all border border-slate-200"
+                  className="p-2 rounded-none bg-slate-50 hover:bg-slate-100 transition-all border border-slate-200"
                   title="LinkedIn Page"
                   aria-label="LinkedIn Page"
                 >
@@ -218,7 +218,7 @@ export const Login = () => {
           <div className="p-8 sm:p-10 border-t md:border-t-0 md:border-l border-slate-100 bg-gradient-to-b from-slate-50 to-slate-100/60 flex flex-col justify-between items-center text-center">
 
             {/* Unsplash Workspace Photo Card with Smooth Fade */}
-            <div className="w-full  overflow-hidden border border-slate-200/90 shadow-lg relative group my-auto bg-white min-h-[180px] sm:min-h-[256px]">
+            <div className="w-full rounded-none overflow-hidden border border-slate-200/90 shadow-lg relative group my-auto bg-white min-h-[180px] sm:min-h-[256px]">
               {SHOWCASE_CARDS.map((card, index) => (
                 <div
                   key={card.id}
@@ -252,7 +252,7 @@ export const Login = () => {
                     key={index}
                     type="button"
                     onClick={() => setActiveSlide(index)}
-                    className={`transition-all duration-300 rounded-full cursor-pointer ${index === activeSlide
+                    className={`transition-all duration-300 rounded-none cursor-pointer ${index === activeSlide
                       ? 'w-6 h-2 bg-[#0562ff]'
                       : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
                       }`}

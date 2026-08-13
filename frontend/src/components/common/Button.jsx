@@ -15,8 +15,8 @@ export const Button = ({
   disabled = false,
   ...props
 }) => {
-  // Clean, professional square button styling (sharp rounded-md)
-  const baseStyles = 'inline-flex items-center justify-center font-bold tracking-tight rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer';
+  // Clean, sharp square button styling (rounded-none)
+  const baseStyles = 'inline-flex items-center justify-center font-bold tracking-tight rounded-none transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer';
 
   const variants = {
     primary: 'bg-slate-900 text-white hover:bg-black dark:bg-white dark:text-black dark:hover:bg-slate-200 border border-slate-900 dark:border-white shadow-sm active:scale-[0.98]',
